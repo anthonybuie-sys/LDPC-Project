@@ -1,0 +1,74 @@
+BG1 Z=384 first4 packed schedule example
+ACC and REC are 36-bit words; the 72-bit issue word is REC:ACC.
+
+cycle acc_hex rec_hex word72_hex decoded_acc decoded_rec
+000 0x000004007 0x000000000 0x000000000000004007 L0 edges=(0, 1) qbuf=0 qslot=0 src_aux=(0, 0) | nop
+001 0x00009CC17 0x000000000 0x00000000000009CC17 L2 edges=(6, 7) qbuf=1 qslot=0 src_aux=(0, 0) | nop
+002 0x00010C407 0x000000000 0x00000000000010C407 L0 edges=(2, 3) qbuf=0 qslot=1 src_aux=(0, 0) | nop
+003 0x0001CA217 0x000000000 0x0000000000001CA217 L2 edges=(17, 18) qbuf=1 qslot=1 src_aux=(0, 0) | nop
+004 0x000214807 0x000000000 0x000000000000214807 L0 edges=(4, 5) qbuf=0 qslot=2 src_aux=(0, 0) | nop
+005 0x0002B5617 0x000000000 0x0000000000002B5617 L2 edges=(11, 13) qbuf=1 qslot=2 src_aux=(0, 0) | nop
+006 0x00031CC07 0x000000000 0x00000000000031CC07 L0 edges=(6, 7) qbuf=0 qslot=3 src_aux=(0, 0) | nop
+007 0x000425007 0x000000000 0x000000000000425007 L0 edges=(8, 9) qbuf=0 qslot=4 src_aux=(0, 0) | nop
+008 0x00052D407 0x000000000 0x00000000000052D407 L0 edges=(10, 11) qbuf=0 qslot=5 src_aux=(0, 0) | nop
+009 0x000635807 0x000000000 0x000000000000635807 L0 edges=(12, 13) qbuf=0 qslot=6 src_aux=(0, 0) | nop
+010 0x00073DC07 0x000000000 0x00000000000073DC07 L0 edges=(14, 15) qbuf=0 qslot=7 src_aux=(0, 0) | nop
+011 0x000846007 0x000000000 0x000000000000846007 L0 edges=(16, 17) qbuf=0 qslot=8 src_aux=(0, 0) | nop
+012 0x000902403 0x000000000 0x000000000000902403 L0 edges=(18,) qbuf=0 qslot=9 src_aux=(0,) | nop
+013 0x000980613 0x000000000 0x000000000000980613 L2 edges=(3,) qbuf=1 qslot=9 src_aux=(0,) | nop
+014 0x000000000 0x000000000 0x000000000000000000 nop | nop
+015 0x000000000 0x021004007 0x021004007000000000 nop | L0 edges=(0, 1) qbuf=0 qslot=0 fwd_aux=(1, 2)
+016 0x000000000 0x043214807 0x043214807000000000 nop | L0 edges=(4, 5) qbuf=0 qslot=2 fwd_aux=(3, 4)
+017 0x000000000 0x06531CC07 0x06531CC07000000000 nop | L0 edges=(6, 7) qbuf=0 qslot=3 fwd_aux=(5, 6)
+018 0x021384017 0x08752D407 0x08752D407021384017 L2 edges=(0, 1) qbuf=1 qslot=3 src_aux=(1, 2) | L0 edges=(10, 11) qbuf=0 qslot=5 fwd_aux=(7, 8)
+019 0x043494817 0x02173DC07 0x02173DC07043494817 L2 edges=(4, 5) qbuf=1 qslot=4 src_aux=(3, 4) | L0 edges=(14, 15) qbuf=0 qslot=7 fwd_aux=(1, 2)
+020 0x0655A5017 0x04310C407 0x04310C4070655A5017 L2 edges=(8, 9) qbuf=1 qslot=5 src_aux=(5, 6) | L0 edges=(2, 3) qbuf=0 qslot=1 fwd_aux=(3, 4)
+021 0x0877B1417 0x056635807 0x0566358070877B1417 L2 edges=(10, 12) qbuf=1 qslot=7 src_aux=(7, 8) | L0 edges=(12, 13) qbuf=0 qslot=6 fwd_aux=(6, 5)
+022 0x000000000 0x087425007 0x087425007000000000 nop | L0 edges=(8, 9) qbuf=0 qslot=4 fwd_aux=(7, 8)
+023 0x0038C0417 0x021846007 0x0218460070038C0417 L2 edges=(2, 16) qbuf=1 qslot=8 src_aux=(3, 0) | L0 edges=(16, 17) qbuf=0 qslot=8 fwd_aux=(1, 2)
+024 0x0056BDC17 0x003902403 0x0039024030056BDC17 L2 edges=(14, 15) qbuf=1 qslot=6 src_aux=(5, 0) | L0 edges=(18,) qbuf=0 qslot=9 fwd_aux=(3,)
+025 0x08702500F 0x000000000 0x00000000008702500F L1 edges=(8, 9) qbuf=0 qslot=0 src_aux=(7, 8) | nop
+026 0x021141E0F 0x000000000 0x000000000021141E0F L1 edges=(15, 16) qbuf=0 qslot=1 src_aux=(1, 2) | nop
+027 0x03024580F 0x02109CC17 0x02109CC1703024580F L1 edges=(12, 17) qbuf=0 qslot=2 src_aux=(0, 3) | L2 edges=(6, 7) qbuf=1 qslot=0 fwd_aux=(1, 2)
+028 0x00090040B 0x0432B5617 0x0432B561700090040B L1 edges=(2,) qbuf=0 qslot=9 src_aux=(0,) | L2 edges=(11, 13) qbuf=1 qslot=2 fwd_aux=(3, 4)
+029 0x000000000 0x0651CA217 0x0651CA217000000000 nop | L2 edges=(17, 18) qbuf=1 qslot=1 fwd_aux=(5, 6)
+030 0x021518A0F 0x087384017 0x087384017021518A0F L1 edges=(5, 6) qbuf=0 qslot=5 src_aux=(1, 2) | L2 edges=(0, 1) qbuf=1 qslot=3 fwd_aux=(7, 8)
+031 0x000000000 0x021494817 0x021494817000000000 nop | L2 edges=(4, 5) qbuf=1 qslot=4 fwd_aux=(1, 2)
+032 0x000000000 0x0435A5017 0x0435A5017000000000 nop | L2 edges=(8, 9) qbuf=1 qslot=5 fwd_aux=(3, 4)
+033 0x000000000 0x0566BDC17 0x0566BDC17000000000 nop | L2 edges=(14, 15) qbuf=1 qslot=6 fwd_aux=(6, 5)
+034 0x02019021F 0x0787B1417 0x0787B141702019021F L3 edges=(1, 4) qbuf=1 qslot=1 src_aux=(0, 2) | L2 edges=(10, 12) qbuf=1 qslot=7 fwd_aux=(8, 7)
+035 0x003848E0F 0x0218C0417 0x0218C0417003848E0F L1 edges=(7, 18) qbuf=0 qslot=8 src_aux=(3, 0) | L2 edges=(2, 16) qbuf=1 qslot=8 fwd_aux=(1, 2)
+036 0x050739A0F 0x003980613 0x003980613050739A0F L1 edges=(13, 14) qbuf=0 qslot=7 src_aux=(0, 5) | L2 edges=(3,) qbuf=1 qslot=9 fwd_aux=(3,)
+037 0x0802A8E1F 0x000000000 0x0000000000802A8E1F L3 edges=(7, 10) qbuf=1 qslot=2 src_aux=(0, 8) | nop
+038 0x0200BDC1F 0x000000000 0x0000000000200BDC1F L3 edges=(14, 15) qbuf=1 qslot=0 src_aux=(0, 2) | nop
+039 0x00341060F 0x000000000 0x00000000000341060F L1 edges=(3, 4) qbuf=0 qslot=4 src_aux=(3, 0) | nop
+040 0x00030400F 0x000000000 0x00000000000030400F L1 edges=(0, 1) qbuf=0 qslot=3 src_aux=(0, 0) | nop
+041 0x00062D40F 0x000000000 0x00000000000062D40F L1 edges=(10, 11) qbuf=0 qslot=6 src_aux=(0, 0) | nop
+042 0x00098241B 0x000000000 0x00000000000098241B L3 edges=(18,) qbuf=1 qslot=9 src_aux=(0,) | nop
+043 0x000000000 0x000000000 0x000000000000000000 nop | nop
+044 0x000000000 0x02102500F 0x02102500F000000000 nop | L1 edges=(8, 9) qbuf=0 qslot=0 fwd_aux=(1, 2)
+045 0x000000000 0x043141E0F 0x043141E0F000000000 nop | L1 edges=(15, 16) qbuf=0 qslot=1 fwd_aux=(3, 4)
+046 0x000000000 0x065518A0F 0x065518A0F000000000 nop | L1 edges=(5, 6) qbuf=0 qslot=5 fwd_aux=(5, 6)
+047 0x0215A501F 0x00724580F 0x00724580F0215A501F L3 edges=(8, 9) qbuf=1 qslot=5 src_aux=(1, 2) | L1 edges=(12, 17) qbuf=0 qslot=2 fwd_aux=(7, 0)
+048 0x0437C601F 0x00130400F 0x00130400F0437C601F L3 edges=(16, 17) qbuf=1 qslot=7 src_aux=(3, 4) | L1 edges=(0, 1) qbuf=0 qslot=3 fwd_aux=(1, 0)
+049 0x065498A1F 0x00241060F 0x00241060F065498A1F L3 edges=(5, 6) qbuf=1 qslot=4 src_aux=(5, 6) | L1 edges=(3, 4) qbuf=0 qslot=4 fwd_aux=(2, 0)
+050 0x000000000 0x00362D40F 0x00362D40F000000000 nop | L1 edges=(10, 11) qbuf=0 qslot=6 fwd_aux=(3, 0)
+051 0x000000000 0x004739A0F 0x004739A0F000000000 nop | L1 edges=(13, 14) qbuf=0 qslot=7 fwd_aux=(4, 0)
+052 0x000000000 0x00190040B 0x00190040B000000000 nop | L1 edges=(2,) qbuf=0 qslot=9 fwd_aux=(1,)
+053 0x0036B161F 0x000848E0F 0x000848E0F0036B161F L3 edges=(11, 12) qbuf=1 qslot=6 src_aux=(3, 0) | L1 edges=(7, 18) qbuf=0 qslot=8 fwd_aux=(0, 0)
+054 0x0408B401F 0x000000000 0x0000000000408B401F L3 edges=(0, 13) qbuf=1 qslot=8 src_aux=(0, 4) | nop
+055 0x00138C41F 0x000000000 0x00000000000138C41F L3 edges=(2, 3) qbuf=1 qslot=3 src_aux=(1, 0) | nop
+056 0x000000000 0x000000000 0x000000000000000000 nop | nop
+057 0x000000000 0x000000000 0x000000000000000000 nop | nop
+058 0x000000000 0x0000BDC1F 0x0000BDC1F000000000 nop | L3 edges=(14, 15) qbuf=1 qslot=0 fwd_aux=(0, 0)
+059 0x000000000 0x00019021F 0x00019021F000000000 nop | L3 edges=(1, 4) qbuf=1 qslot=1 fwd_aux=(0, 0)
+060 0x000000000 0x0002A8E1F 0x0002A8E1F000000000 nop | L3 edges=(7, 10) qbuf=1 qslot=2 fwd_aux=(0, 0)
+061 0x000000000 0x00038C41F 0x00038C41F000000000 nop | L3 edges=(2, 3) qbuf=1 qslot=3 fwd_aux=(0, 0)
+062 0x000000000 0x000498A1F 0x000498A1F000000000 nop | L3 edges=(5, 6) qbuf=1 qslot=4 fwd_aux=(0, 0)
+063 0x000000000 0x0005A501F 0x0005A501F000000000 nop | L3 edges=(8, 9) qbuf=1 qslot=5 fwd_aux=(0, 0)
+064 0x000000000 0x0006B161F 0x0006B161F000000000 nop | L3 edges=(11, 12) qbuf=1 qslot=6 fwd_aux=(0, 0)
+065 0x000000000 0x0007C601F 0x0007C601F000000000 nop | L3 edges=(16, 17) qbuf=1 qslot=7 fwd_aux=(0, 0)
+066 0x000000000 0x0008B401F 0x0008B401F000000000 nop | L3 edges=(0, 13) qbuf=1 qslot=8 fwd_aux=(0, 0)
+067 0x000000000 0x00098241B 0x00098241B000000000 nop | L3 edges=(18,) qbuf=1 qslot=9 fwd_aux=(0,)
+068 0x000000000 0x000000000 0x000000000000000000 nop | nop
+069 0x000000000 0x000000000 0x000000000000000000 nop | nop

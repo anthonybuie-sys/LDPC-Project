@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Xilinx/Vivado generated artifacts
+.Xil/
+*.jou
+*.log
+*.str
+*.wdb
+*.vcd
+*.xpr
+*.lpr
+*.runs/
+*.sim/
+*.hw/
+*.cache/
+*.ip_user_files/
+*.gen/
+*.srcs/
+
+# Local simulation/build outputs
+*.vvp
+dfx_runtime.txt
+results/.gitkeep
+results/rtl_prototypes/sim/
+results/rtl_prototypes/vectors/
+results/rtl_prototypes/test_vectors/
+results/rtl_prototypes/vivado/
+
+# Checked-in source data is kept as text matrices; ignore cloned/downloaded metadata.
+data/NR-LDPC-BG/.git/
+data/NR-LDPC-BG/matlab_code_Base_matrices.zip
+data/NR-LDPC-BG/matlab_code_and_Base_matrices/
+
+# Unrelated local project scratch
+MMSE_Signal_Detection/
+-p/
