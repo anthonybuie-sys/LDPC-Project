@@ -6,13 +6,17 @@ from ldpc_sim.base_graphs import load_3gpp_base_graph
 from ldpc_sim.channel import awgn_llr_all_zero, high_rate_bg1_config, quantize_channel_sample
 from ldpc_sim.fixed_point import (
     FixedPointFormat,
+    beta_equivalent_float,
     beta_subtract_clamp,
+    clipping_fraction,
+    clipping_target_gains,
     clip_magnitude,
     saturate_signed,
     saturating_add,
     saturating_sub,
     signed_from_magnitude,
 )
+from ldpc_sim.monte_carlo import PointConfig, seed_sequence, simulate_point, wilson_interval
 from ldpc_sim.numerical_decoder import (
     assert_full_compressed_fixed_equivalent,
     assert_full_compressed_float_equivalent,
@@ -248,3 +252,85 @@ def test_repeatability_with_fixed_seeds() -> None:
     )
     assert np.array_equal(first.app, second.app)
     assert first.saturation == second.saturation
+
+
+def test_beta_equiv_reporting() -> None:
+    fmt = FixedPointFormat("wide", 8, 12, 12, 10, channel_gain=4.0, beta_int=1)
+    assert beta_equivalent_float(fmt) == 0.25
+
+
+def test_clipping_target_gain_generation() -> None:
+    llr = np.linspace(-10.0, 10.0, 1001)
+    gains = clipping_target_gains(
+        llr,
+        width=4,
+        targets=(0.10,),
+        base_gains=(1.0,),
+        decimals=4,
+    )
+    assert 1.0 in gains
+    generated = [gain for gain in gains if gain != 1.0][0]
+    fraction = clipping_fraction(llr, width=4, gain=generated)
+    assert 0.07 <= fraction <= 0.13
+
+
+def test_wilson_bler_interval() -> None:
+    low, high = wilson_interval(0, 10)
+    assert low == 0.0
+    assert 0.27 < high < 0.29
+    low, high = wilson_interval(5, 10)
+    assert 0.23 < low < 0.24
+    assert 0.76 < high < 0.77
+
+
+def test_high_width_fixed_point_sanity_common_noise() -> None:
+    graph = load_3gpp_base_graph(1, 384, i_ls=1, active_layer_ids=(0, 1, 2, 3))
+    rate = high_rate_bg1_config()
+    sample = awgn_llr_all_zero(
+        rng=np.random.default_rng(2026),
+        z=graph.Z,
+        rate_match=rate,
+        ebn0_db=4.9,
+    )
+    fmt = FixedPointFormat("wide", 8, 12, 12, 10, channel_gain=4.0, beta_int=1)
+    floating = decode_float(
+        graph,
+        sample.llr,
+        beta=0.25,
+        max_iterations=12,
+        layer_order=(0, 2, 1, 3),
+    )
+    quantized = quantize_channel_sample(sample, fmt)
+    fixed = decode_fixed(
+        graph,
+        quantized.values,
+        fmt=fmt,
+        max_iterations=12,
+        layer_order=(0, 2, 1, 3),
+        channel_saturation_count=quantized.channel_saturation_count,
+    )
+    assert np.array_equal(
+        floating.hard_bits[: rate.info_base_cols],
+        fixed.hard_bits[: rate.info_base_cols],
+    )
+    assert abs(floating.iterations - fixed.iterations) <= 2
+
+
+def test_saturation_by_outcome_accounting() -> None:
+    graph = load_3gpp_base_graph(1, 384, i_ls=1, active_layer_ids=(0, 1, 2, 3))
+    fmt = FixedPointFormat("tiny", 3, 4, 4, 3, channel_gain=8.0, beta_int=0)
+    result = simulate_point(
+        graph=graph,
+        rate_match=high_rate_bg1_config(),
+        ebn0_db=4.9,
+        point=PointConfig("tiny", "fixed", fmt=fmt, layer_order=(0, 2, 1, 3)),
+        seeds=seed_sequence(3030, 3),
+        max_iterations=2,
+        max_errors=3,
+    )
+    assert result.saturation_blocks == (
+        result.saturation_error_blocks + result.saturation_clean_blocks
+    )
+    assert result.saturation.total == (
+        result.saturation_error_events + result.saturation_clean_events
+    )

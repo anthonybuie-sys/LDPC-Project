@@ -40,6 +40,7 @@ class MonteCarloResult:
     bit_errors: int
     info_bits: int
     iterations_sum: int
+    iterations_square_sum: int
     successful_iterations_sum: int
     successful_blocks: int
     max_iterations_observed: int
@@ -49,6 +50,10 @@ class MonteCarloResult:
     convergence_failures: int
     saturation: SaturationStats
     saturation_blocks: int
+    saturation_error_blocks: int
+    saturation_clean_blocks: int
+    saturation_error_events: int
+    saturation_clean_events: int
 
     @property
     def bler(self) -> float:
@@ -62,6 +67,16 @@ class MonteCarloResult:
     @property
     def average_iterations(self) -> float:
         return self.iterations_sum / self.blocks if self.blocks else 0.0
+
+    @property
+    def average_iteration_standard_error(self) -> float:
+        if self.blocks <= 1:
+            return 0.0
+        mean = self.average_iterations
+        variance = (
+            self.iterations_square_sum - self.blocks * mean * mean
+        ) / (self.blocks - 1)
+        return float(np.sqrt(max(variance, 0.0) / self.blocks))
 
     @property
     def average_successful_iterations(self) -> float:
@@ -85,7 +100,12 @@ class MonteCarloResult:
     def expected_core_cycles(self) -> float:
         return self.average_iterations * 71.0
 
+    @property
+    def wilson_bler_ci95(self) -> tuple[float, float]:
+        return wilson_interval(self.block_errors, self.blocks)
+
     def as_row(self, **extra: object) -> dict[str, object]:
+        ci_low, ci_high = self.wilson_bler_ci95
         row: dict[str, object] = {
             "label": self.label,
             "model": self.model,
@@ -93,9 +113,12 @@ class MonteCarloResult:
             "blocks": self.blocks,
             "block_errors": self.block_errors,
             "BLER": f"{self.bler:.8f}",
+            "BLER_CI95_low": f"{ci_low:.8f}",
+            "BLER_CI95_high": f"{ci_high:.8f}",
             "bit_errors_info": self.bit_errors,
             "BER": f"{self.ber:.10f}",
             "avg_iterations": f"{self.average_iterations:.6f}",
+            "avg_iteration_se": f"{self.average_iteration_standard_error:.6f}",
             "avg_success_iterations": f"{self.average_successful_iterations:.6f}",
             "max_iterations_observed": self.max_iterations_observed,
             "fraction_reaching_max_iterations": f"{self.fraction_reaching_max_iterations:.6f}",
@@ -108,6 +131,10 @@ class MonteCarloResult:
             "app_add_saturation_count": self.saturation.app_add,
             "saturation_block_fraction": f"{self.saturation_block_fraction:.6f}",
             "saturation_events_per_block": f"{self.saturation_events_per_block:.6f}",
+            "saturation_error_blocks": self.saturation_error_blocks,
+            "saturation_clean_blocks": self.saturation_clean_blocks,
+            "saturation_error_events": self.saturation_error_events,
+            "saturation_clean_events": self.saturation_clean_events,
             "expected_core_cycles": f"{self.expected_core_cycles:.3f}",
             "worst_configured_core_cycles": 12 * 71,
         }
@@ -117,6 +144,19 @@ class MonteCarloResult:
 
 def seed_sequence(base_seed: int, count: int) -> tuple[int, ...]:
     return tuple(int(base_seed + index) for index in range(count))
+
+
+def wilson_interval(errors: int, blocks: int, z: float = 1.959963984540054) -> tuple[float, float]:
+    if blocks < 0 or errors < 0 or errors > blocks:
+        raise ValueError("Require 0 <= errors <= blocks.")
+    if blocks == 0:
+        return 0.0, 0.0
+    n = float(blocks)
+    phat = errors / n
+    denom = 1.0 + z * z / n
+    center = (phat + z * z / (2.0 * n)) / denom
+    radius = z * np.sqrt((phat * (1.0 - phat) + z * z / (4.0 * n)) / n) / denom
+    return max(0.0, center - radius), min(1.0, center + radius)
 
 
 def simulate_point(
@@ -134,6 +174,7 @@ def simulate_point(
     block_errors = 0
     bit_errors = 0
     iterations_sum = 0
+    iterations_square_sum = 0
     successful_iterations_sum = 0
     successful_blocks = 0
     max_iterations_observed = 0
@@ -142,6 +183,10 @@ def simulate_point(
     syndrome_pass_count = 0
     convergence_failures = 0
     saturation_blocks = 0
+    saturation_error_blocks = 0
+    saturation_clean_blocks = 0
+    saturation_error_events = 0
+    saturation_clean_events = 0
     info_bits = rate_match.info_base_cols * graph.Z
 
     for seed in seeds:
@@ -183,6 +228,7 @@ def simulate_point(
         bit_errors += errors
         block_errors += 1 if is_block_error else 0
         iterations_sum += decoded.iterations
+        iterations_square_sum += decoded.iterations * decoded.iterations
         max_iterations_observed = max(max_iterations_observed, decoded.iterations)
         if decoded.iterations >= max_iterations:
             reached_max_iterations += 1
@@ -198,6 +244,14 @@ def simulate_point(
         saturation.add(decoded.saturation)
         if decoded.saturation.any:
             saturation_blocks += 1
+            if is_block_error:
+                saturation_error_blocks += 1
+            else:
+                saturation_clean_blocks += 1
+        if is_block_error:
+            saturation_error_events += decoded.saturation.total
+        else:
+            saturation_clean_events += decoded.saturation.total
         if block_errors >= max_errors:
             break
 
@@ -210,6 +264,7 @@ def simulate_point(
         bit_errors=bit_errors,
         info_bits=info_bits,
         iterations_sum=iterations_sum,
+        iterations_square_sum=iterations_square_sum,
         successful_iterations_sum=successful_iterations_sum,
         successful_blocks=successful_blocks,
         max_iterations_observed=max_iterations_observed,
@@ -219,4 +274,8 @@ def simulate_point(
         convergence_failures=convergence_failures,
         saturation=saturation,
         saturation_blocks=saturation_blocks,
+        saturation_error_blocks=saturation_error_blocks,
+        saturation_clean_blocks=saturation_clean_blocks,
+        saturation_error_events=saturation_error_events,
+        saturation_clean_events=saturation_clean_events,
     )

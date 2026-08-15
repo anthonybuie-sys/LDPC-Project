@@ -98,6 +98,12 @@ CANDIDATE_FORMATS: tuple[FixedPointFormat, ...] = (
 )
 
 
+def beta_equivalent_float(fmt: FixedPointFormat) -> float:
+    if fmt.channel_gain <= 0:
+        raise ValueError("channel_gain must be positive.")
+    return fmt.beta_int / fmt.channel_gain
+
+
 def signed_min(width: int) -> int:
     return -(1 << (width - 1))
 
@@ -143,6 +149,36 @@ def beta_subtract_clamp(magnitudes, beta: int) -> np.ndarray:
 def quantize_channel(llr, fmt: FixedPointFormat) -> tuple[np.ndarray, int]:
     scaled = np.rint(np.asarray(llr, dtype=np.float64) * fmt.channel_gain).astype(np.int64)
     return saturate_signed(scaled, fmt.w_ch)
+
+
+def clipping_fraction(llr, *, width: int, gain: float) -> float:
+    if gain <= 0:
+        raise ValueError("gain must be positive.")
+    scaled = np.rint(np.asarray(llr, dtype=np.float64) * gain)
+    return float(np.count_nonzero(np.abs(scaled) > signed_max(width)) / scaled.size)
+
+
+def clipping_target_gains(
+    llr,
+    *,
+    width: int,
+    targets: tuple[float, ...],
+    base_gains: tuple[float, ...] = (),
+    decimals: int = 3,
+) -> tuple[float, ...]:
+    abs_llr = np.abs(np.asarray(llr, dtype=np.float64).reshape(-1))
+    abs_llr = abs_llr[np.isfinite(abs_llr)]
+    if abs_llr.size == 0:
+        return tuple(sorted(set(base_gains)))
+    gains = {round(float(gain), decimals) for gain in base_gains if gain > 0}
+    threshold = signed_max(width) + 0.5
+    for target in targets:
+        if not 0 < target < 1:
+            raise ValueError("clipping targets must be in (0, 1).")
+        quantile = float(np.quantile(abs_llr, 1.0 - target))
+        if quantile > 0:
+            gains.add(round(threshold / quantile, decimals))
+    return tuple(sorted(gain for gain in gains if gain > 0))
 
 
 def signed_from_magnitude(magnitude, negative) -> np.ndarray:

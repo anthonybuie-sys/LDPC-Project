@@ -1,0 +1,4 @@
+EbN0_dB,blocks,float_errors,float_BLER,float_CI95_low,float_CI95_high,wide_errors,wide_BLER,wide_CI95_low,wide_CI95_high,float_avg_iterations,wide_avg_iterations,avg_iteration_delta_wide_minus_float,float_convergence_failures,wide_convergence_failures,hard_mismatch_blocks,hard_mismatch_info_bits,wide_channel_gain,wide_beta_int,wide_beta_equiv
+4.5,24,0,0.00000000,0.00000000,0.13797620,0,0.00000000,0.00000000,0.13797620,5.916667,5.916667,0.000000,0,0,0,0,4.0,1,0.250000
+4.9,24,0,0.00000000,0.00000000,0.13797620,0,0.00000000,0.00000000,0.13797620,4.208333,4.166667,-0.041667,0,0,0,0,4.0,1,0.250000
+5.3,24,0,0.00000000,0.00000000,0.13797620,0,0.00000000,0.00000000,0.13797620,3.458333,3.458333,0.000000,0,0,0,0,4.0,1,0.250000
