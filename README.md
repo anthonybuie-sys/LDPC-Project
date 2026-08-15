@@ -1,15 +1,17 @@
-# DA-2B-OMS Scheduler Simulator
+# DA-2B-OMS LDPC Decoder Architecture Study
 
-This repository contains a Python architecture/scheduling simulator for a
-Dependency-Aware Dual-Block Layered Offset Min-Sum (DA-2B-OMS) LDPC decoder
-candidate.
+This repository contains Python architecture/scheduling and numerical models
+for a Dependency-Aware Dual-Block Layered Offset Min-Sum (DA-2B-OMS) LDPC
+decoder candidate.
 
-The simulator is a cycle-level architectural validation tool. It is not RTL,
-not a production decoder, and not a numerical LDPC reference model. Its purpose
-is to expose whether a single-code-block, `P = 384`, `B = 2` layered OMS
-architecture can get close to the approximately 50-cycle service lower bound
-while respecting pipeline, dependency, forwarding, q-buffer, and APP-bank
-constraints.
+The cycle simulator is an architectural validation tool. Its purpose is to
+expose whether a single-code-block, `P = 384`, `B = 2` layered OMS architecture
+can get close to the approximately 50-cycle service lower bound while
+respecting pipeline, dependency, forwarding, q-buffer, and APP-bank constraints.
+
+The numerical models provide floating-point and bit-accurate fixed-point
+Layered OMS behavior for architecture studies. They are not production decoder
+RTL and do not claim full 5G link-level coverage.
 
 ## Graph Data
 
@@ -29,6 +31,8 @@ The synthetic fixture remains available for regression tests only. It is labeled
 
 ## Modeled
 
+Cycle architecture simulator:
+
 - 5G NR-style QC-LDPC active layers and QC edges.
 - Layered OMS scheduling at pair granularity.
 - Dual-block issue width `B = 2`.
@@ -44,15 +48,25 @@ The synthetic fixture remains available for regression tests only. It is labeled
 - Exhaustive four-layer order search.
 - Layer-overlap matrix and independent edge/pair transition capacity reports.
 
+Numerical OMS models:
+
+- Floating-point Layered Offset Min-Sum decoding.
+- Bit-accurate fixed-point Layered OMS with signed saturating CH/APP/q
+  arithmetic and unsigned compressed min-state magnitudes.
+- Full C2V and compressed check-state representations, with deterministic
+  equivalence tests.
+- BPSK/AWGN all-zero-codeword channel generation with explicit high-rate BG1
+  puncturing.
+- Syndrome-based early termination and information-bit BLER/BER metrics.
+- First-pass fixed-point calibration, SNR sweep, layer-order comparison, and
+  range-stress scripts.
+
 ## Not Modeled Yet
 
-- Full numerical Offset Min-Sum decoding.
-- Full lifted lane-value vectors.
+- Production decoder RTL.
+- Complete 5G NR rate matching beyond the explicitly modeled reference cases.
 - Synthesis, timing closure, or FPGA Fmax.
 - Multi-code-block throughput.
-
-The `OMSGoldenModel` API exists as a placeholder and explicitly reports
-`NOT YET IMPLEMENTED`.
 
 ## Terms
 
@@ -150,14 +164,26 @@ matrices and writes the full 25-point result set to
 `sweep_forward_cache.py` covers depths `2, 4, 8, 16`. `sweep_banks.py` reports
 unschedulable banking choices explicitly instead of hiding them.
 
+Run numerical OMS sanity checks and the fixed-point pilot:
+
+```powershell
+python scripts/run_oms_sanity.py
+python scripts/run_fixed_point_sweep.py
+```
+
+The fixed-point pilot writes results under `results/fixed_point/`. The default
+pilot is runtime-bounded and reports the exact number of simulated blocks; do
+not treat it as a publication-quality BLER curve.
+
 Run tests:
 
 ```powershell
 python tests/run_tests.py
 ```
 
-The tests use only the Python standard library. They are also compatible with
-pytest if it is installed separately.
+The scheduler tests use only the Python standard library. The numerical OMS
+tests require NumPy, listed in `requirements.txt`. The tests are also compatible
+with pytest if it is installed separately.
 
 ## RTL Prototypes
 
