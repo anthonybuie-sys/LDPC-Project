@@ -11,6 +11,7 @@ from ldpc_sim.fixed_point import (
     clipping_fraction,
     clipping_target_gains,
     clip_magnitude,
+    initialize_app_from_channel,
     saturate_signed,
     saturating_add,
     saturating_sub,
@@ -254,9 +255,67 @@ def test_repeatability_with_fixed_seeds() -> None:
     assert first.saturation == second.saturation
 
 
+def test_channel_to_app_shift_zero_matches_current_initialization() -> None:
+    values = np.array([[-20, -8, -1, 0, 7, 20]], dtype=np.int64)
+    fmt = FixedPointFormat("T", 6, 4, 4, 4, ch_to_app_shift=0)
+    initialized, init_sat = initialize_app_from_channel(values, fmt)
+    expected, expected_sat = saturate_signed(values, fmt.w_app)
+    assert initialized.tolist() == expected.tolist()
+    assert init_sat == expected_sat
+
+
+def test_channel_to_app_signed_shift() -> None:
+    values = np.array([[-3, -1, 0, 2, 3]], dtype=np.int64)
+    fmt = FixedPointFormat("T", 4, 8, 8, 5, ch_to_app_shift=2)
+    initialized, init_sat = initialize_app_from_channel(values, fmt)
+    assert initialized.tolist() == [[-12, -4, 0, 8, 12]]
+    assert init_sat == 0
+
+
+def test_channel_to_app_shift_saturates_without_wraparound() -> None:
+    values = np.array([[7, -8, 3, -3]], dtype=np.int64)
+    fmt = FixedPointFormat("T", 4, 5, 5, 4, ch_to_app_shift=2)
+    initialized, init_sat = initialize_app_from_channel(values, fmt)
+    assert initialized.tolist() == [[15, -16, 12, -12]]
+    assert init_sat == 2
+
+
+def test_app_initialization_saturation_is_counted_separately() -> None:
+    graph = load_3gpp_base_graph(1, 384, i_ls=1, active_layer_ids=())
+    values = np.zeros((1, graph.Z), dtype=np.int64)
+    values[0, 0] = 7
+    values[0, 1] = -8
+    fmt = FixedPointFormat("T", 4, 5, 5, 4, ch_to_app_shift=2)
+    result = decode_fixed(
+        graph,
+        values,
+        fmt=fmt,
+        max_iterations=1,
+        early_termination=True,
+        channel_saturation_count=3,
+    )
+    assert result.saturation.channel == 3
+    assert result.saturation.app_init == 2
+    assert result.saturation.total == 5
+
+
 def test_beta_equiv_reporting() -> None:
     fmt = FixedPointFormat("wide", 8, 12, 12, 10, channel_gain=4.0, beta_int=1)
     assert beta_equivalent_float(fmt) == 0.25
+
+
+def test_beta_equiv_reporting_with_channel_to_app_shift() -> None:
+    fmt = FixedPointFormat(
+        "shifted",
+        5,
+        8,
+        8,
+        6,
+        channel_gain=2.0,
+        beta_int=1,
+        ch_to_app_shift=2,
+    )
+    assert beta_equivalent_float(fmt) == 0.125
 
 
 def test_clipping_target_gain_generation() -> None:

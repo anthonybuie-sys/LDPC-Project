@@ -1,0 +1,4 @@
+comparison,left_candidate,left_config_id,left_BLER,left_avg_iterations,left_expected_core_cycles,right_candidate,right_config_id,right_BLER,right_avg_iterations,right_expected_core_cycles,delta_BLER_right_minus_left,delta_avg_iterations_right_minus_left
+C_vs_D,C,C_ch5_app7_q7_m6_g0.759_s1_b1,0.11375000,7.457500,529.482,D,D_ch5_app8_q8_m6_g0.759_s2_b1,0.04125000,6.376250,452.714,-0.07250000,-1.081250
+D_vs_F,D,D_ch5_app8_q8_m6_g0.759_s2_b1,0.04125000,6.376250,452.714,F,F_ch6_app8_q8_m6_g1.542_s1_b1,0.02875000,6.176250,438.514,-0.01250000,-0.200000
+F_vs_G,F,F_ch6_app8_q8_m6_g1.542_s1_b1,0.02875000,6.176250,438.514,G,G_ch6_app9_q9_m7_g1.32_s1_b1,0.02875000,6.208750,440.821,0.00000000,0.032500

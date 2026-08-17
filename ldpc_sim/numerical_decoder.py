@@ -11,7 +11,7 @@ from ldpc_sim.fixed_point import (
     SaturationStats,
     beta_subtract_clamp,
     clip_magnitude,
-    saturate_signed,
+    initialize_app_from_channel,
     saturating_add,
     saturating_sub,
     signed_from_magnitude,
@@ -361,9 +361,9 @@ def decode_fixed(
     channel = np.asarray(channel_values, dtype=np.int64)
     n_cols = _n_cols_for(graph, channel)
     app = np.zeros((n_cols, graph.Z), dtype=np.int64)
-    initial, init_sat = saturate_signed(channel, fmt.w_app)
+    initial, init_sat = initialize_app_from_channel(channel, fmt)
     app[: channel.shape[0], :] = initial
-    stats = SaturationStats(channel=channel_saturation_count + init_sat)
+    stats = SaturationStats(channel=channel_saturation_count, app_init=init_sat)
     ordered_layers = _ordered_layers(graph, layer_order)
     if representation == "full":
         r_state = {
@@ -463,13 +463,13 @@ def assert_full_compressed_fixed_equivalent(
 ) -> None:
     channel = np.asarray(channel_values, dtype=np.int64)
     n_cols = _n_cols_for(graph, channel)
-    initial, init_sat = saturate_signed(channel, fmt.w_app)
+    initial, init_sat = initialize_app_from_channel(channel, fmt)
     app_full = np.zeros((n_cols, graph.Z), dtype=np.int64)
     app_compressed = np.zeros((n_cols, graph.Z), dtype=np.int64)
     app_full[: channel.shape[0], :] = initial
     app_compressed[: channel.shape[0], :] = initial
-    full_stats = SaturationStats(channel=channel_saturation_count + init_sat)
-    compressed_stats = SaturationStats(channel=channel_saturation_count + init_sat)
+    full_stats = SaturationStats(channel=channel_saturation_count, app_init=init_sat)
+    compressed_stats = SaturationStats(channel=channel_saturation_count, app_init=init_sat)
     r_state = {
         (edge.layer_id, edge.edge_id): np.zeros(graph.Z, dtype=np.int64)
         for layer in graph.layers

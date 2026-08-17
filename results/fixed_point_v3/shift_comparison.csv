@@ -1,0 +1,5 @@
+candidate,best_shift0_config_id,best_shift0_BLER,best_shift0_avg_iterations,best_nonzero_config_id,best_nonzero_shift,best_nonzero_BLER,best_nonzero_avg_iterations,delta_BLER_nonzero_minus_shift0,delta_avg_iterations_nonzero_minus_shift0
+C,C_ch5_app7_q7_m6_g1.137_s0_b0,0.18750000,8.687500,C_ch5_app7_q7_m6_g0.759_s1_b1,1,0.00000000,8.312500,-0.18750000,-0.375000
+D,D_ch5_app8_q8_m6_g1.137_s0_b0,0.18750000,8.687500,D_ch5_app8_q8_m6_g0.759_s2_b1,2,0.00000000,6.687500,-0.18750000,-2.000000
+F,F_ch6_app8_q8_m6_g2.311_s0_b1,0.00000000,6.687500,F_ch6_app8_q8_m6_g1.32_s1_b1,1,0.00000000,6.562500,0.00000000,-0.125000
+G,G_ch6_app9_q9_m7_g2.311_s0_b1,0.00000000,6.687500,G_ch6_app9_q9_m7_g1.32_s1_b1,1,0.00000000,6.562500,0.00000000,-0.125000

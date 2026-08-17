@@ -16,6 +16,7 @@ class FixedPointFormat:
     w_m: int
     channel_gain: float = 1.0
     beta_int: int = 0
+    ch_to_app_shift: int = 0
 
     @property
     def ch_min(self) -> int:
@@ -45,7 +46,13 @@ class FixedPointFormat:
     def m_max(self) -> int:
         return magnitude_max(self.w_m)
 
-    def with_params(self, *, channel_gain: float, beta_int: int) -> "FixedPointFormat":
+    def with_params(
+        self,
+        *,
+        channel_gain: float,
+        beta_int: int,
+        ch_to_app_shift: int | None = None,
+    ) -> "FixedPointFormat":
         return FixedPointFormat(
             name=self.name,
             w_ch=self.w_ch,
@@ -54,19 +61,23 @@ class FixedPointFormat:
             w_m=self.w_m,
             channel_gain=channel_gain,
             beta_int=beta_int,
+            ch_to_app_shift=(
+                self.ch_to_app_shift if ch_to_app_shift is None else ch_to_app_shift
+            ),
         )
 
 
 @dataclass
 class SaturationStats:
     channel: int = 0
+    app_init: int = 0
     q_sub: int = 0
     min_input_clip: int = 0
     app_add: int = 0
 
     @property
     def total(self) -> int:
-        return self.channel + self.q_sub + self.min_input_clip + self.app_add
+        return self.channel + self.app_init + self.q_sub + self.min_input_clip + self.app_add
 
     @property
     def any(self) -> bool:
@@ -74,6 +85,7 @@ class SaturationStats:
 
     def add(self, other: "SaturationStats") -> None:
         self.channel += other.channel
+        self.app_init += other.app_init
         self.q_sub += other.q_sub
         self.min_input_clip += other.min_input_clip
         self.app_add += other.app_add
@@ -81,6 +93,7 @@ class SaturationStats:
     def copy(self) -> "SaturationStats":
         return SaturationStats(
             channel=self.channel,
+            app_init=self.app_init,
             q_sub=self.q_sub,
             min_input_clip=self.min_input_clip,
             app_add=self.app_add,
@@ -101,7 +114,9 @@ CANDIDATE_FORMATS: tuple[FixedPointFormat, ...] = (
 def beta_equivalent_float(fmt: FixedPointFormat) -> float:
     if fmt.channel_gain <= 0:
         raise ValueError("channel_gain must be positive.")
-    return fmt.beta_int / fmt.channel_gain
+    if fmt.ch_to_app_shift < 0:
+        raise ValueError("ch_to_app_shift must be non-negative.")
+    return fmt.beta_int / (fmt.channel_gain * (1 << fmt.ch_to_app_shift))
 
 
 def signed_min(width: int) -> int:
@@ -149,6 +164,14 @@ def beta_subtract_clamp(magnitudes, beta: int) -> np.ndarray:
 def quantize_channel(llr, fmt: FixedPointFormat) -> tuple[np.ndarray, int]:
     scaled = np.rint(np.asarray(llr, dtype=np.float64) * fmt.channel_gain).astype(np.int64)
     return saturate_signed(scaled, fmt.w_ch)
+
+
+def initialize_app_from_channel(channel_values, fmt: FixedPointFormat) -> tuple[np.ndarray, int]:
+    if fmt.ch_to_app_shift < 0:
+        raise ValueError("ch_to_app_shift must be non-negative.")
+    channel = np.asarray(channel_values, dtype=np.int64)
+    shifted = channel * (1 << fmt.ch_to_app_shift)
+    return saturate_signed(shifted, fmt.w_app)
 
 
 def clipping_fraction(llr, *, width: int, gain: float) -> float:
