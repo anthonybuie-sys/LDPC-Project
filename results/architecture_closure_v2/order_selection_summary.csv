@@ -1,0 +1,9 @@
+layer_order,decoder_cycles_per_iteration,syndrome_tail,effective_iteration_boundary,blocks,block_errors,BLER,BLER_CI95_low,BLER_CI95_high,avg_iterations,expected_latency_cycles,fraction_reaching_max_iterations,quality_pass,confirmation_rank,confirmation_retained,meaningful_error_degradation,selection_quality_pass
+1-3-2-0,71,1,72,4000,169,0.04225000,0.03644285,0.04893552,7.137250,513.882,0.060750,True,1,True,False,True
+1-2-3-0,71,1,72,4000,169,0.04225000,0.03644285,0.04893552,7.173000,516.456,0.060750,True,2,True,False,True
+1-2-0-3,72,1,73,4000,178,0.04450000,0.03853497,0.05133908,7.187000,524.651,0.062750,True,3,True,False,True
+1-0-3-2,73,1,74,4000,162,0.04050000,0.03481893,0.04706280,7.166000,530.284,0.059500,True,4,True,False,True
+0-2-1-3,70,1,71,4000,195,0.04875000,0.04249863,0.05586727,7.623500,541.269,0.072250,True,5,True,False,True
+1-3-0-2,75,1,76,4000,165,0.04125000,0.03551453,0.04786576,7.122750,541.329,0.056750,True,6,True,False,True
+3-2-1-0,70,1,71,4000,195,0.04875000,0.04249863,0.05586727,7.654250,543.452,0.072250,True,7,True,False,True
+0-1-2-3,76,1,77,4000,180,0.04500000,0.03900050,0.05187259,7.402250,569.973,0.065000,True,8,True,False,True

@@ -1,0 +1,6 @@
+stage,EbN0_dB,seed_base,seed_count,first_seed,last_seed,depends_on_order_index,reuse_rule
+screen,4.2,72260819,500,72260819,72261318,False,same tuple reused for every layer order at this SNR
+screen,4.4,74260819,500,74260819,74261318,False,same tuple reused for every layer order at this SNR
+screen,4.9,79260819,500,79260819,79261318,False,same tuple reused for every layer order at this SNR
+confirmation,4.2,82260819,2000,82260819,82262818,False,same tuple reused for every layer order at this SNR
+confirmation,4.4,84260819,2000,84260819,84262818,False,same tuple reused for every layer order at this SNR
