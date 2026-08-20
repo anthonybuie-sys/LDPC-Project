@@ -1,0 +1,473 @@
+{
+  "architecture_config_identity": "073bbe4bb4ce18a7a17396226baba5e22a15dacd88f99d7aa4de448c1b056ef0",
+  "artifact_type": "qc_shift_table",
+  "format": "layer_local_edge_to_app_column_shift_v1",
+  "generator": {
+    "name": "scripts/close_rtl_handoff_category_a.py",
+    "version": "1"
+  },
+  "profile_identity": "BG1_Z384_iLS1_layers_0_1_2_3",
+  "qc_direction": {
+    "canonical_lane_k_reads_inverse": "check_lane_(k-s)_mod_Z",
+    "check_lane_k_reads": "canonical_lane_(k+s)_mod_Z"
+  },
+  "rows": [
+    {
+      "app_column": 0,
+      "layer_id": 0,
+      "local_edge_id": 0,
+      "shift": 307
+    },
+    {
+      "app_column": 1,
+      "layer_id": 0,
+      "local_edge_id": 1,
+      "shift": 19
+    },
+    {
+      "app_column": 2,
+      "layer_id": 0,
+      "local_edge_id": 2,
+      "shift": 50
+    },
+    {
+      "app_column": 3,
+      "layer_id": 0,
+      "local_edge_id": 3,
+      "shift": 369
+    },
+    {
+      "app_column": 5,
+      "layer_id": 0,
+      "local_edge_id": 4,
+      "shift": 181
+    },
+    {
+      "app_column": 6,
+      "layer_id": 0,
+      "local_edge_id": 5,
+      "shift": 216
+    },
+    {
+      "app_column": 9,
+      "layer_id": 0,
+      "local_edge_id": 6,
+      "shift": 317
+    },
+    {
+      "app_column": 10,
+      "layer_id": 0,
+      "local_edge_id": 7,
+      "shift": 288
+    },
+    {
+      "app_column": 11,
+      "layer_id": 0,
+      "local_edge_id": 8,
+      "shift": 109
+    },
+    {
+      "app_column": 12,
+      "layer_id": 0,
+      "local_edge_id": 9,
+      "shift": 17
+    },
+    {
+      "app_column": 13,
+      "layer_id": 0,
+      "local_edge_id": 10,
+      "shift": 357
+    },
+    {
+      "app_column": 15,
+      "layer_id": 0,
+      "local_edge_id": 11,
+      "shift": 215
+    },
+    {
+      "app_column": 16,
+      "layer_id": 0,
+      "local_edge_id": 12,
+      "shift": 106
+    },
+    {
+      "app_column": 18,
+      "layer_id": 0,
+      "local_edge_id": 13,
+      "shift": 242
+    },
+    {
+      "app_column": 19,
+      "layer_id": 0,
+      "local_edge_id": 14,
+      "shift": 180
+    },
+    {
+      "app_column": 20,
+      "layer_id": 0,
+      "local_edge_id": 15,
+      "shift": 330
+    },
+    {
+      "app_column": 21,
+      "layer_id": 0,
+      "local_edge_id": 16,
+      "shift": 346
+    },
+    {
+      "app_column": 22,
+      "layer_id": 0,
+      "local_edge_id": 17,
+      "shift": 1
+    },
+    {
+      "app_column": 23,
+      "layer_id": 0,
+      "local_edge_id": 18,
+      "shift": 0
+    },
+    {
+      "app_column": 0,
+      "layer_id": 1,
+      "local_edge_id": 0,
+      "shift": 76
+    },
+    {
+      "app_column": 2,
+      "layer_id": 1,
+      "local_edge_id": 1,
+      "shift": 76
+    },
+    {
+      "app_column": 3,
+      "layer_id": 1,
+      "local_edge_id": 2,
+      "shift": 73
+    },
+    {
+      "app_column": 4,
+      "layer_id": 1,
+      "local_edge_id": 3,
+      "shift": 288
+    },
+    {
+      "app_column": 5,
+      "layer_id": 1,
+      "local_edge_id": 4,
+      "shift": 144
+    },
+    {
+      "app_column": 7,
+      "layer_id": 1,
+      "local_edge_id": 5,
+      "shift": 331
+    },
+    {
+      "app_column": 8,
+      "layer_id": 1,
+      "local_edge_id": 6,
+      "shift": 331
+    },
+    {
+      "app_column": 9,
+      "layer_id": 1,
+      "local_edge_id": 7,
+      "shift": 178
+    },
+    {
+      "app_column": 11,
+      "layer_id": 1,
+      "local_edge_id": 8,
+      "shift": 295
+    },
+    {
+      "app_column": 12,
+      "layer_id": 1,
+      "local_edge_id": 9,
+      "shift": 342
+    },
+    {
+      "app_column": 14,
+      "layer_id": 1,
+      "local_edge_id": 10,
+      "shift": 217
+    },
+    {
+      "app_column": 15,
+      "layer_id": 1,
+      "local_edge_id": 11,
+      "shift": 99
+    },
+    {
+      "app_column": 16,
+      "layer_id": 1,
+      "local_edge_id": 12,
+      "shift": 354
+    },
+    {
+      "app_column": 17,
+      "layer_id": 1,
+      "local_edge_id": 13,
+      "shift": 114
+    },
+    {
+      "app_column": 19,
+      "layer_id": 1,
+      "local_edge_id": 14,
+      "shift": 331
+    },
+    {
+      "app_column": 21,
+      "layer_id": 1,
+      "local_edge_id": 15,
+      "shift": 112
+    },
+    {
+      "app_column": 22,
+      "layer_id": 1,
+      "local_edge_id": 16,
+      "shift": 0
+    },
+    {
+      "app_column": 23,
+      "layer_id": 1,
+      "local_edge_id": 17,
+      "shift": 0
+    },
+    {
+      "app_column": 24,
+      "layer_id": 1,
+      "local_edge_id": 18,
+      "shift": 0
+    },
+    {
+      "app_column": 0,
+      "layer_id": 2,
+      "local_edge_id": 0,
+      "shift": 205
+    },
+    {
+      "app_column": 1,
+      "layer_id": 2,
+      "local_edge_id": 1,
+      "shift": 250
+    },
+    {
+      "app_column": 2,
+      "layer_id": 2,
+      "local_edge_id": 2,
+      "shift": 328
+    },
+    {
+      "app_column": 4,
+      "layer_id": 2,
+      "local_edge_id": 3,
+      "shift": 332
+    },
+    {
+      "app_column": 5,
+      "layer_id": 2,
+      "local_edge_id": 4,
+      "shift": 256
+    },
+    {
+      "app_column": 6,
+      "layer_id": 2,
+      "local_edge_id": 5,
+      "shift": 161
+    },
+    {
+      "app_column": 7,
+      "layer_id": 2,
+      "local_edge_id": 6,
+      "shift": 267
+    },
+    {
+      "app_column": 8,
+      "layer_id": 2,
+      "local_edge_id": 7,
+      "shift": 160
+    },
+    {
+      "app_column": 9,
+      "layer_id": 2,
+      "local_edge_id": 8,
+      "shift": 63
+    },
+    {
+      "app_column": 10,
+      "layer_id": 2,
+      "local_edge_id": 9,
+      "shift": 129
+    },
+    {
+      "app_column": 13,
+      "layer_id": 2,
+      "local_edge_id": 10,
+      "shift": 200
+    },
+    {
+      "app_column": 14,
+      "layer_id": 2,
+      "local_edge_id": 11,
+      "shift": 88
+    },
+    {
+      "app_column": 15,
+      "layer_id": 2,
+      "local_edge_id": 12,
+      "shift": 53
+    },
+    {
+      "app_column": 17,
+      "layer_id": 2,
+      "local_edge_id": 13,
+      "shift": 131
+    },
+    {
+      "app_column": 18,
+      "layer_id": 2,
+      "local_edge_id": 14,
+      "shift": 240
+    },
+    {
+      "app_column": 19,
+      "layer_id": 2,
+      "local_edge_id": 15,
+      "shift": 205
+    },
+    {
+      "app_column": 20,
+      "layer_id": 2,
+      "local_edge_id": 16,
+      "shift": 13
+    },
+    {
+      "app_column": 24,
+      "layer_id": 2,
+      "local_edge_id": 17,
+      "shift": 0
+    },
+    {
+      "app_column": 25,
+      "layer_id": 2,
+      "local_edge_id": 18,
+      "shift": 0
+    },
+    {
+      "app_column": 0,
+      "layer_id": 3,
+      "local_edge_id": 0,
+      "shift": 276
+    },
+    {
+      "app_column": 1,
+      "layer_id": 3,
+      "local_edge_id": 1,
+      "shift": 87
+    },
+    {
+      "app_column": 3,
+      "layer_id": 3,
+      "local_edge_id": 2,
+      "shift": 0
+    },
+    {
+      "app_column": 4,
+      "layer_id": 3,
+      "local_edge_id": 3,
+      "shift": 275
+    },
+    {
+      "app_column": 6,
+      "layer_id": 3,
+      "local_edge_id": 4,
+      "shift": 199
+    },
+    {
+      "app_column": 7,
+      "layer_id": 3,
+      "local_edge_id": 5,
+      "shift": 153
+    },
+    {
+      "app_column": 8,
+      "layer_id": 3,
+      "local_edge_id": 6,
+      "shift": 56
+    },
+    {
+      "app_column": 10,
+      "layer_id": 3,
+      "local_edge_id": 7,
+      "shift": 132
+    },
+    {
+      "app_column": 11,
+      "layer_id": 3,
+      "local_edge_id": 8,
+      "shift": 305
+    },
+    {
+      "app_column": 12,
+      "layer_id": 3,
+      "local_edge_id": 9,
+      "shift": 231
+    },
+    {
+      "app_column": 13,
+      "layer_id": 3,
+      "local_edge_id": 10,
+      "shift": 341
+    },
+    {
+      "app_column": 14,
+      "layer_id": 3,
+      "local_edge_id": 11,
+      "shift": 212
+    },
+    {
+      "app_column": 16,
+      "layer_id": 3,
+      "local_edge_id": 12,
+      "shift": 304
+    },
+    {
+      "app_column": 17,
+      "layer_id": 3,
+      "local_edge_id": 13,
+      "shift": 300
+    },
+    {
+      "app_column": 18,
+      "layer_id": 3,
+      "local_edge_id": 14,
+      "shift": 271
+    },
+    {
+      "app_column": 20,
+      "layer_id": 3,
+      "local_edge_id": 15,
+      "shift": 39
+    },
+    {
+      "app_column": 21,
+      "layer_id": 3,
+      "local_edge_id": 16,
+      "shift": 357
+    },
+    {
+      "app_column": 22,
+      "layer_id": 3,
+      "local_edge_id": 17,
+      "shift": 1
+    },
+    {
+      "app_column": 25,
+      "layer_id": 3,
+      "local_edge_id": 18,
+      "shift": 0
+    }
+  ],
+  "source_repository_commit": "7e1e07f9c2a3f8722cf48ada49521736435ea89e"
+}

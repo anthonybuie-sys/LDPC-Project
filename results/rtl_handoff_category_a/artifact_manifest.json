@@ -1,0 +1,115 @@
+{
+  "architecture_configuration_identity": {
+    "content": {
+      "B": 2,
+      "D_A": 3,
+      "D_R": 3,
+      "P": 384,
+      "beta_equiv": 0.3787878787878788,
+      "beta_int": 1,
+      "ch_to_app_shift": 1,
+      "channel_gain": 1.32,
+      "channel_gain_location": "upstream_demapper_rate_recovery",
+      "config_name": "5g_nr_qc_ldpc_production_v1",
+      "config_version": "category_a_closed",
+      "decoder_core_app_init": "sat8(CH6 << 1)",
+      "decoder_core_input": "already_quantized_signed_CH6",
+      "forward_cache_depth": 8,
+      "iteration_policy": "non_speculative",
+      "num_acc_contexts": 2,
+      "num_app_banks": 8,
+      "reference_BG": 1,
+      "reference_Z": 384,
+      "reference_active_layers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "reference_decoder_cycles": 71,
+      "reference_effective_boundary": 72,
+      "reference_iLS": 1,
+      "reference_layer_order": [
+        1,
+        3,
+        2,
+        0
+      ],
+      "reference_syndrome_tail": 1,
+      "saturation_rule": "asymmetric_twos_complement",
+      "syndrome_Q": 8,
+      "syndrome_S": 8,
+      "w_APP": 8,
+      "w_CH": 6,
+      "w_M": 6,
+      "w_q": 8
+    },
+    "sha256": "073bbe4bb4ce18a7a17396226baba5e22a15dacd88f99d7aa4de448c1b056ef0"
+  },
+  "artifacts": [
+    {
+      "kind": "schedule_program",
+      "path": "results/rtl_handoff_category_a/schedule_program.json",
+      "record_count": 71,
+      "sha256": "d87a84716891e2361e461bb2b5ddc6c2e115c09f38f331c856ad58e23f78c3bb",
+      "size_bytes": 11283
+    },
+    {
+      "kind": "qc_shift_table",
+      "path": "results/rtl_handoff_category_a/qc_shift_table.json",
+      "record_count": 76,
+      "sha256": "f16e341eda07b08bd14d995e337b71d7219cb0caa7a4db04d08f5687a5ac62d1",
+      "size_bytes": 8853
+    },
+    {
+      "kind": "profile_metadata",
+      "path": "results/rtl_handoff_category_a/profile_metadata.json",
+      "record_count": 1,
+      "sha256": "ed05fbdddcbc03191929a0b5e6c070ac59e709cb755cf104bf91ff43ccc55d45",
+      "size_bytes": 1425
+    }
+  ],
+  "expected_schedule_metrics": {
+    "ACC_issue_cycles": 40,
+    "REC_issue_cycles": 40,
+    "active_edges": 76,
+    "decoder_cycles_per_iteration": 71,
+    "effective_iteration_boundary": 72,
+    "syndrome_tail": 1
+  },
+  "generator": {
+    "name": "scripts/close_rtl_handoff_category_a.py",
+    "version": "1"
+  },
+  "manifest_type": "production_v1_artifact_manifest",
+  "profile_identity": {
+    "content": {
+      "Z": 384,
+      "active_layers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "base_graph": 1,
+      "iLS": 1,
+      "layer_order": [
+        1,
+        3,
+        2,
+        0
+      ]
+    },
+    "sha256": "24f984f4c47d4535b6b4144fcb75307cb0f9aa3ac77415e99b3a71fa59b10db2"
+  },
+  "source_repository_commit": "7e1e07f9c2a3f8722cf48ada49521736435ea89e",
+  "validation_flow": [
+    "Construct ProductionV1Config; do not consume config.architecture.ArchitectureConfig defaults.",
+    "Validate converted ArchitectureConfig against frozen production-v1 fields.",
+    "Load checked-in actual 3GPP BG1 Z=384 iLS=1 active layers 0..3.",
+    "Generate selected layer-order schedule for 1-3-2-0.",
+    "Generate packed 72-bit issue program and QC shift table as JSON artifacts.",
+    "Hash every artifact with SHA-256 over deterministic JSON bytes.",
+    "Check expected decoder cycles, syndrome tail, and effective boundary."
+  ]
+}

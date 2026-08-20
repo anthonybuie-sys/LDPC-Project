@@ -1,0 +1,47 @@
+{
+  "architecture_config_identity": "073bbe4bb4ce18a7a17396226baba5e22a15dacd88f99d7aa4de448c1b056ef0",
+  "artifact_type": "profile_metadata",
+  "expected_schedule_metrics": {
+    "ACC_issue_cycles": 40,
+    "REC_issue_cycles": 40,
+    "active_edges": 76,
+    "decoder_cycles_per_iteration": 71,
+    "effective_iteration_boundary": 72,
+    "syndrome_tail": 1
+  },
+  "format": "production_profile_metadata_v1",
+  "generator": {
+    "name": "scripts/close_rtl_handoff_category_a.py",
+    "version": "1"
+  },
+  "profile": {
+    "Z": 384,
+    "active_layers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "base_graph": 1,
+    "base_graph_source_commit": "910ecbc9e81d43e318079aec535dc9a166a76b2a",
+    "base_graph_source_note": "ACTUAL 5G NR BG1 DATA from https://github.com/manuts/NR-LDPC-BG commit 910ecbc9e81d43e318079aec535dc9a166a76b2a; file NR_1_1_384.txt; iLS=1; Z=384.",
+    "base_graph_source_path": "C:\\Users\\18324\\Verilog Project\\LDPC Decoder\\data\\NR-LDPC-BG\\NR_1_1_384.txt",
+    "base_graph_source_url": "https://github.com/manuts/NR-LDPC-BG",
+    "iLS": 1,
+    "layer_order": [
+      1,
+      3,
+      2,
+      0
+    ]
+  },
+  "source_repository_commit": "7e1e07f9c2a3f8722cf48ada49521736435ea89e",
+  "syndrome": {
+    "Q": 8,
+    "S": 8,
+    "completion_cycle": 72,
+    "first_final_cycle": 53,
+    "last_final_cycle": 71,
+    "required_queue_depth": 2
+  }
+}
