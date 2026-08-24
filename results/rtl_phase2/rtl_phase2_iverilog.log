@@ -1,0 +1,2 @@
+PASS phase2 qc permutation
+rtl\tb\tb_phase2_qc.sv:395: $finish called at 4633000 (1ps)

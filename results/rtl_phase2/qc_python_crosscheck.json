@@ -1,0 +1,12 @@
+{
+  "models": [
+    "ldpc_sim.qc_direction.scalar_rotate_to_check",
+    "ldpc_sim.qc_direction.scalar_rotate_from_check",
+    "ldpc_sim.numerical_decoder.rotate_to_check",
+    "ldpc_sim.numerical_decoder.rotate_from_check"
+  ],
+  "observed_rows": 14208,
+  "source": "results/rtl_phase2/qc_sv_observed.csv",
+  "status": "PASS",
+  "vector_direction_shift_groups": 37
+}
