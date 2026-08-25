@@ -1,0 +1,60 @@
+{
+  "ACC_source_selection": {
+    "A0_APP_memory_earliest": "cycle c+4 for the same producer",
+    "A0_forward_earliest": "cycle c+3 for a producer REC issued at c",
+    "A0_functional_timing": "stored APP and forward-slot APP are both available during A0 cycle c; A0 performs forward QC permutation and registers the permuted result for A1 at c+1",
+    "fallback_on_tag_mismatch": "fatal error; do not silently fall back to APP memory",
+    "selector_rule": "aux=0 selects stored APP; aux=1..8 selects forward slot aux-1"
+  },
+  "REC_pipeline": {
+    "APP_memory_safe_for_ordinary_ACC": "start of cycle c+4",
+    "APP_write_request": "start of cycle c+3",
+    "R0": "cycle c; reconstruct newC2V from newly closed compressed state",
+    "R1": "cycle c+1; consume q slot data and compute APP=q+newC2V in check domain",
+    "R2": "cycle c+2; inverse QC permutation and canonical APP production",
+    "REC_issue_cycle": "c",
+    "forward_production": "start of cycle c+3"
+  },
+  "artifact_type": "forwarding_timing_contract",
+  "cycle_convention": {
+    "D_stage_visibility": "A D-stage token issued at c is registered and visible at start of c+D.",
+    "cycle_start": "Cycle c begins immediately after rising edge c.",
+    "issue": "An issue in cycle c presents operands/addresses during c..c+1 and is captured into stage 0 at the next rising edge."
+  },
+  "depth_contract": {
+    "FORWARD_DEPTH": 8,
+    "microinstruction_aux_values": "1..8",
+    "shrink_depth_without_reschedule_allowed": false,
+    "slot_ids": "0..7"
+  },
+  "slot_metadata_contract": {
+    "ACC_check_cycle": "A0 of the consuming ACC issue",
+    "ACC_expected_tag": "base column resolved from the ACC instruction layer_id/local_edge_id plus the current iteration epoch",
+    "epoch_or_column_mismatch": "fatal error; the core stops issuing and partial output is invalid",
+    "implementation_note": "metadata may be held in registers and shall not add a cycle",
+    "logical_fields": [
+      "valid",
+      "column_id_tag",
+      "iteration_epoch",
+      "canonical_APP_vector[384][8]"
+    ],
+    "payload_bits_per_slot": 3072,
+    "producer": "REC R2 for the lane whose REC aux value names the slot",
+    "producer_tag_write": "column_id_tag is the REC lane base column; iteration_epoch is the current decoder iteration epoch",
+    "retirement": "valid clears after the encoded consumer cycle has elapsed, or at memory_safe c+4 when no live scheduled consumer remains",
+    "valid_assertion": "start of cycle c+3 for REC issue c, atomically with canonical APP vector visibility"
+  },
+  "source_evidence_hash": "7d4091e0dde8b21e00253d44460de9599d6c6c0983315a4d52db38cb19d7fedb",
+  "status": "CLOSED",
+  "validated_reference_schedule": {
+    "decoder_cycles": 71,
+    "forward_allocations": 50,
+    "forwarded_app_reads": 27,
+    "lifetime_avg_cycles": 3.46,
+    "lifetime_max_cycles": 4,
+    "lifetime_min_cycles": 3,
+    "max_live_forward_entries": 8,
+    "normal_app_reads": 49,
+    "profile": "BG1_Z384_iLS1_layers_0_1_2_3_order_1_3_2_0"
+  }
+}

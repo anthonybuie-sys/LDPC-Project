@@ -1,0 +1,113 @@
+{
+  "artifact_type": "control_semantics_contract",
+  "max_iterations": {
+    "boundary_tests": {
+      "1": {
+        "all_fail_completed_iterations_after_decide": 1,
+        "all_fail_iterations_executed": 1,
+        "all_fail_terminal_action": "terminate_max_iterations",
+        "pass": true,
+        "syndrome_zero_completed_iterations_after_decide": 1,
+        "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+      },
+      "12": {
+        "all_fail_completed_iterations_after_decide": 12,
+        "all_fail_iterations_executed": 12,
+        "all_fail_terminal_action": "terminate_max_iterations",
+        "pass": true,
+        "syndrome_zero_completed_iterations_after_decide": 1,
+        "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+      },
+      "15": {
+        "all_fail_completed_iterations_after_decide": 15,
+        "all_fail_iterations_executed": 15,
+        "all_fail_terminal_action": "terminate_max_iterations",
+        "pass": true,
+        "syndrome_zero_completed_iterations_after_decide": 1,
+        "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+      },
+      "2": {
+        "all_fail_completed_iterations_after_decide": 2,
+        "all_fail_iterations_executed": 2,
+        "all_fail_terminal_action": "terminate_max_iterations",
+        "pass": true,
+        "syndrome_zero_completed_iterations_after_decide": 1,
+        "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+      }
+    },
+    "comparison": "on syndrome fail, launch another iteration only when completed_next < max_iterations",
+    "decide_semantics": {
+      "completed_next": "completed_iterations + 1 for the iteration whose syndrome decision just completed",
+      "counter_update": "completed_iterations_after_decide = completed_next for every DECIDE outcome",
+      "else": "launch next iteration after recording completed_next",
+      "else_if_completed_next_gte_max_iterations": "terminate due to maximum iterations",
+      "if_syndrome_zero": "terminate successfully"
+    },
+    "iteration_counter": "4-bit completed-iteration counter; starts at 0 for a block and increments once per completed syndrome decision",
+    "legal_range": "1..15",
+    "non_speculative_policy": "no next-iteration ACC issue before the current syndrome decision",
+    "oq": "OQ-10",
+    "out_of_range_behavior": "unrepresentable at 4 bits; wider integration values must be rejected before programming the core",
+    "reset_default": 12,
+    "syndrome_independence": "max_iterations bounds retry count; it does not force or bypass syndrome early termination",
+    "width_bits": 4,
+    "zero_behavior": "illegal configuration error"
+  },
+  "reset": {
+    "core_reset_signal": "rst_i",
+    "deassertion": "synchronous; enters IDLE on a clock boundary",
+    "large_memory_clear": "not required; epoch/valid metadata must prevent stale payload visibility",
+    "minimum_assertion": "one rising edge after clock stability",
+    "oq": "OQ-09",
+    "polarity": "active_high",
+    "state_after_reset": {
+      "busy": 0,
+      "contexts": "closed",
+      "done": 0,
+      "error_flags": "clear",
+      "forward_entries": "invalid",
+      "fsm": "IDLE",
+      "iteration_counter": 0,
+      "output_valid": 0,
+      "program_counter": 0,
+      "q_slots": "invalid",
+      "syndrome_queue": "empty"
+    },
+    "synchronization": "synchronous to the single core clock; board-level async reset synchronization is outside the decoder core"
+  },
+  "source_evidence_hash": "7d4091e0dde8b21e00253d44460de9599d6c6c0983315a4d52db38cb19d7fedb",
+  "start_done_abort_error": {
+    "abort": "synchronous abort stops new issue on the next cycle, invalidates live epochs/valids, suppresses output, and returns to IDLE with aborted status set",
+    "done_behavior": "done_o is a sticky level in DONE until the next accepted start, explicit status clear, abort clear, or reset; a one-cycle pulse may be derived but is not the architectural state",
+    "early_termination": "only DECIDE may terminate early after syndrome_done and syndrome_zero are both true",
+    "fatal_error": "stop new issue, invalidate partial output, latch error cause, and remain in ERROR until reset or explicit clear from IDLE-safe integration",
+    "start": "accepted only in IDLE with legal configuration; illegal configuration enters ERROR before memory mutation"
+  },
+  "status": "CLOSED",
+  "syndrome": {
+    "Q": 8,
+    "S": 8,
+    "accumulator_owner": "syndrome engine only",
+    "clear_semantics": "parallel clear or epoch invalidation are permitted physical mechanisms beneath the same logical-zero rule",
+    "collision_behavior": "if multiple consumed work items target the same row in one cycle, XOR-reduce by row before the single architectural accumulator update or use an equivalent collision-safe multiwrite implementation",
+    "logical_zero_semantics": "at each iteration start all architectural syndrome accumulators behave as zero before any work item is consumed; stale prior-iteration state is inaccessible; establishing logical zero consumes no decoder cycle",
+    "oq": "OQ-14",
+    "push_pop_order": "new finalized columns with final_valid_cycle <= current cycle are admitted before up to S work items are consumed; enqueue and consume in the same cycle are legal",
+    "queue_entry": "base column, canonical hard vector from final APP, active-lane mask, iteration epoch, and work iterator",
+    "queue_overflow": "fatal architectural error; no drop or overwrite",
+    "syndrome_done": "all active columns finalized exactly once, all active QC edges consumed exactly once, queue empty, internal iterator empty, and all row accumulators complete",
+    "syndrome_zero": "all active syndrome bits in every active row are zero",
+    "validated_reference": {
+      "Q": 8,
+      "S": 8,
+      "completion_cycle": 72,
+      "effective_iteration_boundary": 72,
+      "first_final_cycle": 53,
+      "last_final_cycle": 71,
+      "max_backlog": 7,
+      "max_queue_occupancy": 2,
+      "tail_cycles": 1,
+      "total_work_items": 76
+    }
+  }
+}

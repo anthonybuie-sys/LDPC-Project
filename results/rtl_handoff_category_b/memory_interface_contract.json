@@ -1,0 +1,283 @@
+{
+  "app_memory": {
+    "address": {
+      "bank_map": {
+        "0": 0,
+        "1": 3,
+        "10": 7,
+        "11": 0,
+        "12": 1,
+        "13": 4,
+        "14": 7,
+        "15": 2,
+        "16": 2,
+        "17": 1,
+        "18": 5,
+        "19": 4,
+        "2": 1,
+        "20": 3,
+        "21": 6,
+        "22": 7,
+        "23": 3,
+        "24": 0,
+        "25": 1,
+        "3": 5,
+        "4": 2,
+        "5": 3,
+        "6": 6,
+        "7": 4,
+        "8": 5,
+        "9": 6
+      },
+      "basis": "(bank_id, bank_local_column)",
+      "column_to_bank_map_source": "profile metadata/generator; not modulo"
+    },
+    "decision": "Eight logical APP banks, canonical P-lane vector words, scheduler-boundary global 2R+2W envelope, and latency-neutral physical wrapper that supports any R2-aligned same-bank read/write collision without adding a cycle.",
+    "initialization": {
+      "active_lane_rule": "APP_initial = sat8(sign_extend(CH6) << 1)",
+      "inactive_lane_rule": "logical zero and masked from updates",
+      "input_format": "already quantized CH6",
+      "orientation": "canonical"
+    },
+    "latency": {
+      "ACC_pipeline": {
+        "A0": "ACC issue c: APP source selection and forward QC permutation",
+        "A1": "c+1: old C2V reconstruction and q",
+        "A2": "c+2: B=2 accumulation update and q/sign publication",
+        "commit_start_visible": "c+3"
+      },
+      "REC_forward_visible": "REC issue c -> c+3",
+      "REC_pipeline": {
+        "R0": "REC issue c: new C2V reconstruction",
+        "R1": "c+1: APP = q + newC2V",
+        "R2": "c+2: inverse QC permutation",
+        "forward_write_request": "c+3"
+      },
+      "added_hidden_pipeline_cycle_allowed": false,
+      "ordinary_ACC_source_cycle": "stored or forwarded APP must be logically available during A0 cycle c",
+      "ordinary_APP_safe": "REC issue c -> c+4"
+    },
+    "logical_banks": 8,
+    "logical_word": {
+      "basis": "one active base column in canonical orientation",
+      "lane_width_bits": 8,
+      "lanes": 384,
+      "partial_vector_visibility_allowed": false,
+      "word_width_bits": 3072
+    },
+    "oq": "OQ-02",
+    "physical_wrapper_requirement": {
+      "a0_source_requirement": "stored APP source must be logically available during A0 cycle c for QC permutation; a bare one-cycle synchronous BRAM read that makes APP first available in A1 does not satisfy this interface",
+      "read_during_write_same_address_dependency": "not relied upon; forwarding supplies not-yet-memory-safe values",
+      "reason": "R2 writes occur c+3, not at schedule issue c; the reference program has same-bank physical read/write cycles.",
+      "required_behavior": "support one read and one write to the same logical bank in the same physical cycle, or use an equivalent write buffer/register shadow, with no added visible latency",
+      "same_bank_read_write_cycle_count": 4
+    },
+    "scheduler_boundary_ports_per_cycle": {
+      "forwarded_ACC_operand_consumes_APP_bank": false,
+      "ordinary_ACC_reads_global_max": 2,
+      "ordinary_REC_writes_global_max": 2,
+      "ordinary_operation_per_bank_per_issue_cycle_max": 1,
+      "validated_max_reads": 2,
+      "validated_max_writes": 2
+    },
+    "suggested_xilinx_realizations": [
+      "register or LUTRAM bank store for latency-critical A0 source access",
+      "BRAM/URAM payload behind a register shadow, cache, or other latency-neutral wrapper that preserves A0 source availability",
+      "LUTRAM/register shadow for the latency-critical high-rate profile",
+      "write-buffered bank wrapper with c+4 ordinary-read safety and c+3 forwarding"
+    ]
+  },
+  "artifact_type": "memory_interface_contract",
+  "compressed_check_state": {
+    "decision": "Use two logical generation arrays plus per-layer epoch/valid/closed metadata. ACC reads old generation, A2 writes new generation, REC reads newly closed generation.",
+    "fields": {
+      "layer_lane_fields": [
+        "M1[5:0]",
+        "M2[5:0]",
+        "Imin[4:0]",
+        "aggregate_sign"
+      ],
+      "layer_lane_payload_bits": 18,
+      "per_edge_lane_fields": [
+        "q_sign"
+      ]
+    },
+    "first_iteration": {
+      "M1_M2_Imin_sentinel_allowed": false,
+      "architectural_semantics": "single valid/epoch logical-zero rule",
+      "bulk_memory_clear_required": false,
+      "initial_block_setup": "leaves the old generation logically invalid",
+      "invalid_sentinel_allowed": false,
+      "oldC2V": "if old generation is invalid for the current block/epoch, reconstructed oldC2V = 0"
+    },
+    "generation_scheme": "ping_pong_generations_with_epoch_valid_bits",
+    "layer_close": {
+      "Imin_after_close": "must name a real local edge ID",
+      "atomic_to_REC": true,
+      "visibility": "closing ACC issue c -> closed new generation visible c+3"
+    },
+    "oq": "OQ-04",
+    "ownership": {
+      "A2": "new generation update and layer close publication",
+      "ACC": "old generation only",
+      "REC": "new closed generation only",
+      "iteration_advance": "after syndrome decision, new generation becomes old for the next iteration; previous old becomes next write target"
+    },
+    "ports_required": {
+      "per_A2_cycle": "one context update plus up to two new q_sign edge-vector writes",
+      "per_ACC_issue": "one old-generation layer-vector read plus up to two old q_sign edge-vector reads",
+      "per_REC_issue": "one new-generation layer-vector read plus up to two new q_sign edge-vector reads",
+      "validated_maxima": {
+        "a2_context_updates": 1,
+        "a2_new_qsign_edge_writes": 2,
+        "acc_old_layer_vector_reads": 1,
+        "acc_old_qsign_edge_reads": 2,
+        "layer_close_commits": 1,
+        "rec_new_layer_vector_reads": 1,
+        "rec_new_qsign_edge_reads": 2
+      }
+    },
+    "suggested_xilinx_realizations": [
+      "register or LUTRAM layer context for running and just-closed minima",
+      "duplicated/striped q_sign storage for B=2 edge-vector reads",
+      "BRAM/LUTRAM arrays behind a wrapper that preserves c+3 close visibility"
+    ]
+  },
+  "forward_cache": {
+    "aux_encoding": "ACC/REC aux values 1..8 encode slots 0..7; 0 means no forward source/allocation",
+    "depth": 8,
+    "entry_payload_bits": 3072,
+    "validated": {
+      "depth": 8,
+      "forward_allocations": 50,
+      "forwarded_app_reads": 27,
+      "lifetime_avg": 3.46,
+      "lifetime_max": 4,
+      "lifetime_min": 3,
+      "max_live_entries": 8,
+      "memory_safe_rule": "REC issue c -> ordinary APP memory safe c+4",
+      "normal_app_reads": 49,
+      "valid_cycle_rule": "REC issue c -> forward visible c+3"
+    }
+  },
+  "frozen_parameters": {
+    "ACC_contexts": 2,
+    "APP_banks": 8,
+    "B": 2,
+    "D_A": 3,
+    "D_R": 3,
+    "P": 384,
+    "forward_depth": 8,
+    "widths": {
+      "APP": 8,
+      "CH": 6,
+      "M": 6,
+      "q": 8
+    }
+  },
+  "logical_contract_authoritative": true,
+  "logical_read_latency_table": [
+    {
+      "bypass_requirement": "If ACC aux selects a forward slot, APP memory is not read; the forward slot APP follows the same A0 timing and must be available during c for QC permutation.",
+      "consumer_stage": "A0 source selection and forward QC permutation; A0 result is registered for A1 at c+1",
+      "data_valid_cycle": "during A0 cycle c",
+      "one_cycle_synchronous_read_allowed": false,
+      "prefetch_required": false,
+      "request_address_cycle": "ACC issue c / A0",
+      "same_cycle_combinational_read_required": true,
+      "structure": "APP ordinary read"
+    },
+    {
+      "bypass_requirement": "If the old generation is invalid for the current block/epoch, reconstruction returns logical zero; no M1/M2/Imin sentinel is observed.",
+      "consumer_stage": "A1 reconstructs oldC2V with old q_sign",
+      "data_valid_cycle": "c+1",
+      "one_cycle_synchronous_read_allowed": true,
+      "prefetch_required": false,
+      "request_address_cycle": "ACC issue c / A0",
+      "same_cycle_combinational_read_required": false,
+      "structure": "old compressed layer-state read"
+    },
+    {
+      "bypass_requirement": "Same invalid-old-generation zero rule as old compressed layer state.",
+      "consumer_stage": "A1 reconstructs oldC2V sign",
+      "data_valid_cycle": "c+1",
+      "one_cycle_synchronous_read_allowed": true,
+      "prefetch_required": false,
+      "request_address_cycle": "ACC issue c / A0",
+      "same_cycle_combinational_read_required": false,
+      "structure": "old q_sign read"
+    },
+    {
+      "bypass_requirement": "If closing ACC issues at x, new state is visible at start x+3; a REC issued at c=x+3 may consume that newly published state during R0 c.",
+      "consumer_stage": "R0 reconstructs newC2V",
+      "data_valid_cycle": "during R0 cycle c",
+      "one_cycle_synchronous_read_allowed": false,
+      "prefetch_required": false,
+      "request_address_cycle": "REC issue c / R0",
+      "same_cycle_combinational_read_required": true,
+      "structure": "new compressed layer-state read"
+    },
+    {
+      "bypass_requirement": "Must match the new compressed layer-state generation and iteration epoch; mismatch is fatal.",
+      "consumer_stage": "R0 reconstructs newC2V sign",
+      "data_valid_cycle": "during R0 cycle c",
+      "one_cycle_synchronous_read_allowed": false,
+      "prefetch_required": false,
+      "request_address_cycle": "REC issue c / R0",
+      "same_cycle_combinational_read_required": true,
+      "structure": "new q_sign read"
+    },
+    {
+      "bypass_requirement": "A read at the q write-visible boundary must return the written q vector or be proven absent by schedule validation; no hidden cycle is allowed.",
+      "consumer_stage": "R1 computes APP update with q and newC2V",
+      "data_valid_cycle": "c+1",
+      "one_cycle_synchronous_read_allowed": true,
+      "prefetch_required": false,
+      "request_address_cycle": "REC issue c / R0",
+      "same_cycle_combinational_read_required": false,
+      "structure": "q scratch read"
+    }
+  ],
+  "q_scratch": {
+    "buffers": 2,
+    "decision": "Two q buffers, ten valid q slots per buffer, one B-vector write and one B-vector read per cycle, with explicit owner metadata.",
+    "invalid_qslots": "10..15",
+    "metadata": [
+      "valid",
+      "iteration_epoch",
+      "layer_id",
+      "qslot",
+      "qbuf",
+      "lane_mask"
+    ],
+    "oq": "OQ-15",
+    "ports_required": {
+      "reads_per_cycle": 1,
+      "same_qbuf_read_write_allowed": true,
+      "same_qslot_read_write_required": false,
+      "validated_max_qslot": 9,
+      "validated_max_reads": 1,
+      "validated_max_writes": 1,
+      "writes_per_cycle": 1
+    },
+    "qbuf_rule": "layer_position mod 2",
+    "qslot_rule": "B=2 pair identifier",
+    "slot_payload": {
+      "P": 384,
+      "lanes_per_slot": 2,
+      "payload_bits": 6144,
+      "q_width_bits": 8
+    },
+    "timing": {
+      "hidden_cycle_allowed": false,
+      "read_allowed": "REC issue cycle >= write_visible and layer closed",
+      "read_latency": "request in R0 cycle c, data valid in R1 cycle c+1",
+      "release": "REC issue c -> c+3",
+      "write_visible": "ACC issue c -> c+3"
+    },
+    "valid_qslots": "0..9"
+  },
+  "source_evidence_hash": "7d4091e0dde8b21e00253d44460de9599d6c6c0983315a4d52db38cb19d7fedb",
+  "status": "CLOSED"
+}

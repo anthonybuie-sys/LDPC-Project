@@ -1,0 +1,2 @@
+PASS phase1 arithmetic primitives
+rtl\tb\tb_phase1_arith.sv:284: $finish called at 66065000 (1ps)

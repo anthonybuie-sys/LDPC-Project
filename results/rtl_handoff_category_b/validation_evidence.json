@@ -1,0 +1,67 @@
+{
+  "artifact_type": "category_b_validation_evidence",
+  "max_iteration_boundary_tests": {
+    "1": {
+      "all_fail_completed_iterations_after_decide": 1,
+      "all_fail_iterations_executed": 1,
+      "all_fail_terminal_action": "terminate_max_iterations",
+      "pass": true,
+      "syndrome_zero_completed_iterations_after_decide": 1,
+      "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+    },
+    "12": {
+      "all_fail_completed_iterations_after_decide": 12,
+      "all_fail_iterations_executed": 12,
+      "all_fail_terminal_action": "terminate_max_iterations",
+      "pass": true,
+      "syndrome_zero_completed_iterations_after_decide": 1,
+      "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+    },
+    "15": {
+      "all_fail_completed_iterations_after_decide": 15,
+      "all_fail_iterations_executed": 15,
+      "all_fail_terminal_action": "terminate_max_iterations",
+      "pass": true,
+      "syndrome_zero_completed_iterations_after_decide": 1,
+      "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+    },
+    "2": {
+      "all_fail_completed_iterations_after_decide": 2,
+      "all_fail_iterations_executed": 2,
+      "all_fail_terminal_action": "terminate_max_iterations",
+      "pass": true,
+      "syndrome_zero_completed_iterations_after_decide": 1,
+      "syndrome_zero_terminal_action_after_one_iteration": "terminate_success"
+    }
+  },
+  "phase1_sv": {
+    "log": "results/rtl_handoff_category_b/phase1_sv_validation.log",
+    "status": "PASS",
+    "summary": "PASS phase1 arithmetic primitives"
+  },
+  "phase2_python_qc": {
+    "log": "results/rtl_handoff_category_b/phase2_python_qc_validation.log",
+    "observed_rows": 14208,
+    "status": "PASS",
+    "summary": "14208 observed SV lane rows checked"
+  },
+  "phase2_sv": {
+    "log": "results/rtl_handoff_category_b/phase2_sv_validation.log",
+    "status": "PASS",
+    "summary": "PASS phase2 qc permutation"
+  },
+  "phase3_sv": {
+    "explicit_edges_checked": 96,
+    "log": "results/rtl_handoff_category_b/phase3_sv_validation.log",
+    "scalar_cases": 32768,
+    "status": "PASS",
+    "summary": "PASS phase3 compressed c2v reconstruction",
+    "vector_cases": 116
+  },
+  "python_regression": {
+    "log": "results/rtl_handoff_category_b/python_regression_validation.log",
+    "passed": 76,
+    "status": "PASS",
+    "summary": "76 passed"
+  }
+}

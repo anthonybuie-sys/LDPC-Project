@@ -1,0 +1,263 @@
+{
+  "acc_edges": 76,
+  "acc_issue_cycles": 40,
+  "active_columns": 26,
+  "active_edges": 76,
+  "app_ports": {
+    "issue_aligned_bank_conflicts": 0,
+    "max_issue_aligned_ordinary_reads_per_cycle": 2,
+    "max_issue_aligned_writes_per_cycle": 2,
+    "r2_aligned_same_bank_read_write_cycle_count": 4,
+    "r2_aligned_same_bank_read_write_cycles": [
+      {
+        "cycle": 21,
+        "ordinary_reads": [
+          {
+            "aux": 0,
+            "bank": 1,
+            "column": 17,
+            "edge_id": 13,
+            "final_touch": 0
+          }
+        ],
+        "r2_writes": [
+          {
+            "aux": 7,
+            "bank": 0,
+            "column": 0,
+            "edge_id": 0,
+            "final_touch": 0
+          },
+          {
+            "aux": 8,
+            "bank": 1,
+            "column": 2,
+            "edge_id": 1,
+            "final_touch": 0
+          }
+        ],
+        "same_bank_ids": [
+          1
+        ]
+      },
+      {
+        "cycle": 37,
+        "ordinary_reads": [
+          {
+            "aux": 0,
+            "bank": 5,
+            "column": 8,
+            "edge_id": 7,
+            "final_touch": 0
+          }
+        ],
+        "r2_writes": [
+          {
+            "aux": 4,
+            "bank": 5,
+            "column": 3,
+            "edge_id": 2,
+            "final_touch": 0
+          },
+          {
+            "aux": 3,
+            "bank": 2,
+            "column": 4,
+            "edge_id": 3,
+            "final_touch": 0
+          }
+        ],
+        "same_bank_ids": [
+          5
+        ]
+      },
+      {
+        "cycle": 53,
+        "ordinary_reads": [
+          {
+            "aux": 0,
+            "bank": 4,
+            "column": 13,
+            "edge_id": 10,
+            "final_touch": 0
+          },
+          {
+            "aux": 0,
+            "bank": 2,
+            "column": 15,
+            "edge_id": 11,
+            "final_touch": 0
+          }
+        ],
+        "r2_writes": [
+          {
+            "aux": 1,
+            "bank": 4,
+            "column": 19,
+            "edge_id": 15,
+            "final_touch": 0
+          },
+          {
+            "aux": 0,
+            "bank": 0,
+            "column": 24,
+            "edge_id": 17,
+            "final_touch": 1
+          }
+        ],
+        "same_bank_ids": [
+          4
+        ]
+      },
+      {
+        "cycle": 56,
+        "ordinary_reads": [
+          {
+            "aux": 0,
+            "bank": 1,
+            "column": 2,
+            "edge_id": 2,
+            "final_touch": 0
+          }
+        ],
+        "r2_writes": [
+          {
+            "aux": 4,
+            "bank": 3,
+            "column": 20,
+            "edge_id": 16,
+            "final_touch": 0
+          },
+          {
+            "aux": 0,
+            "bank": 1,
+            "column": 25,
+            "edge_id": 18,
+            "final_touch": 1
+          }
+        ],
+        "same_bank_ids": [
+          1
+        ]
+      }
+    ]
+  },
+  "artifact_type": "category_b_schedule_contract_evidence",
+  "bank_map": {
+    "0": 0,
+    "1": 3,
+    "10": 7,
+    "11": 0,
+    "12": 1,
+    "13": 4,
+    "14": 7,
+    "15": 2,
+    "16": 2,
+    "17": 1,
+    "18": 5,
+    "19": 4,
+    "2": 1,
+    "20": 3,
+    "21": 6,
+    "22": 7,
+    "23": 3,
+    "24": 0,
+    "25": 1,
+    "3": 5,
+    "4": 2,
+    "5": 3,
+    "6": 6,
+    "7": 4,
+    "8": 5,
+    "9": 6
+  },
+  "check_state": {
+    "acc_old_generation_only": true,
+    "layer_close_atomicity_checked": true,
+    "max_ports_by_cycle": {
+      "a2_context_updates": 1,
+      "a2_new_qsign_edge_writes": 2,
+      "acc_old_layer_vector_reads": 1,
+      "acc_old_qsign_edge_reads": 2,
+      "layer_close_commits": 1,
+      "rec_new_layer_vector_reads": 1,
+      "rec_new_qsign_edge_reads": 2
+    },
+    "rec_new_generation_only": true
+  },
+  "decoder_cycles_per_iteration": 71,
+  "effective_iteration_boundary": 72,
+  "evidence_hash": "7d4091e0dde8b21e00253d44460de9599d6c6c0983315a4d52db38cb19d7fedb",
+  "first_acc_cycle_by_layer": {
+    "0": 38,
+    "1": 0,
+    "2": 22,
+    "3": 1
+  },
+  "first_rec_cycle_by_layer": {
+    "0": 59,
+    "1": 15,
+    "2": 46,
+    "3": 29
+  },
+  "forwarding": {
+    "depth": 8,
+    "forward_allocations": 50,
+    "forwarded_app_reads": 27,
+    "lifetime_avg": 3.46,
+    "lifetime_max": 4,
+    "lifetime_min": 3,
+    "max_live_entries": 8,
+    "memory_safe_rule": "REC issue c -> ordinary APP memory safe c+4",
+    "normal_app_reads": 49,
+    "valid_cycle_rule": "REC issue c -> forward visible c+3"
+  },
+  "last_rec_cycle_by_layer": {
+    "0": 68,
+    "1": 24,
+    "2": 55,
+    "3": 38
+  },
+  "layer_close_cycles": {
+    "0": 59,
+    "1": 15,
+    "2": 46,
+    "3": 29
+  },
+  "layer_order": [
+    1,
+    3,
+    2,
+    0
+  ],
+  "profile_identity": "BG1_Z384_iLS1_layers_0_1_2_3_order_1_3_2_0",
+  "program_length": 71,
+  "q_scratch": {
+    "all_reads_after_writes": true,
+    "all_reuses_after_release": true,
+    "max_qslot": 9,
+    "max_reads_per_cycle": 1,
+    "max_writes_per_cycle": 1,
+    "qbufs": [
+      0,
+      1
+    ]
+  },
+  "rec_edges": 76,
+  "rec_issue_cycles": 40,
+  "source_profile": "results\\rtl_handoff_category_a\\profile_metadata.json",
+  "source_schedule": "results\\rtl_handoff_category_a\\schedule_program.json",
+  "syndrome": {
+    "Q": 8,
+    "S": 8,
+    "completion_cycle": 72,
+    "effective_iteration_boundary": 72,
+    "first_final_cycle": 53,
+    "last_final_cycle": 71,
+    "max_backlog": 7,
+    "max_queue_occupancy": 2,
+    "tail_cycles": 1,
+    "total_work_items": 76
+  },
+  "syndrome_tail": 1
+}

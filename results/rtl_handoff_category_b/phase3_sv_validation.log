@@ -1,0 +1,5 @@
+phase3 scalar_cases=32768
+phase3 vector_cases=116
+phase3 explicit_edges_checked=96
+PASS phase3 compressed c2v reconstruction
+rtl\tb\tb_phase3_c2v.sv:335: $finish called at 32899000 (1ps)
