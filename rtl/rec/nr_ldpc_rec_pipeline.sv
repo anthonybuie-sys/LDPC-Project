@@ -72,6 +72,15 @@ module nr_ldpc_rec_pipeline #(
   output logic                         app_write_final_touch0_o,
   output logic                         app_write_final_touch1_o,
 
+  output logic [1:0]                   forward_candidate_valid_o,
+  output logic [P*8-1:0]               forward_candidate_lane0_o,
+  output logic [P*8-1:0]               forward_candidate_lane1_o,
+  output logic [6:0]                   forward_candidate_base_column0_o,
+  output logic [6:0]                   forward_candidate_base_column1_o,
+  output logic [3:0]                   forward_candidate_iteration_epoch_o,
+  output logic [3:0]                   forward_candidate_aux0_o,
+  output logic [3:0]                   forward_candidate_aux1_o,
+
   output logic [1:0]                   forward_valid_o,
   output logic [2:0]                   forward_slot0_o,
   output logic [2:0]                   forward_slot1_o,
@@ -419,6 +428,16 @@ module nr_ldpc_rec_pipeline #(
   assign app_write_aux1_o = pub_aux1_q;
   assign app_write_final_touch0_o = pub_final_touch0_q;
   assign app_write_final_touch1_o = pub_final_touch1_q;
+
+  assign forward_candidate_valid_o[0] = r2_valid_q && !r2_error_w && r2_lane_mask_q[0];
+  assign forward_candidate_valid_o[1] = r2_valid_q && !r2_error_w && r2_lane_mask_q[1];
+  assign forward_candidate_lane0_o = r2_app0_canonical_w;
+  assign forward_candidate_lane1_o = r2_app1_canonical_w;
+  assign forward_candidate_base_column0_o = r2_base_column0_q;
+  assign forward_candidate_base_column1_o = r2_base_column1_q;
+  assign forward_candidate_iteration_epoch_o = r2_iteration_epoch_q;
+  assign forward_candidate_aux0_o = r2_aux0_q;
+  assign forward_candidate_aux1_o = r2_aux1_q;
 
   assign forward_valid_o[0] = app_write_valid_o[0] && (pub_aux0_q != 4'd0);
   assign forward_valid_o[1] = app_write_valid_o[1] && (pub_aux1_q != 4'd0);
