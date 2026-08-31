@@ -1,9 +1,7 @@
 `ifndef NR_LDPC_ACC_MIN_UPDATE_SV
 `define NR_LDPC_ACC_MIN_UPDATE_SV
 
-module nr_ldpc_acc_min_update
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_acc_min_update (
   input  logic [5:0] edge_count_i,
   input  logic [5:0] min1_i,
   input  logic [5:0] min2_i,
@@ -26,6 +24,8 @@ module nr_ldpc_acc_min_update
   output logic [4:0] imin_o,
   output logic       aggregate_sign_o
 );
+  import nr_ldpc_pkg::*;
+
   logic [5:0] next_edge_count;
   logic [5:0] next_min1;
   logic [5:0] next_min2;

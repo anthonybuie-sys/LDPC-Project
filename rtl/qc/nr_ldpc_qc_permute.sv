@@ -31,6 +31,7 @@ module nr_ldpc_qc_permute_core #(
   // Packed lane convention: lane k is vector[k*LANE_W +: LANE_W].
   always @* begin
     vector_o = '0;
+    src = 0;
     shift_value = int'(shift_i);
     illegal_shift_o = (shift_value < 0) || (shift_value >= P);
 

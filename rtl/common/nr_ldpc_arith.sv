@@ -8,8 +8,8 @@ module nr_ldpc_sat_signed #(
   input  logic signed [IN_W-1:0]  in_i,
   output logic signed [OUT_W-1:0] out_o
 );
-  function automatic logic signed [IN_W-1:0] ext_const(input integer value);
-    ext_const = value;
+  function automatic logic signed [IN_W-1:0] ext_const(input logic signed [31:0] value);
+    ext_const = value[IN_W-1:0];
   endfunction
 
   localparam logic signed [IN_W-1:0] OUT_MIN_EXT = ext_const(-(1 << (OUT_W - 1)));
@@ -17,23 +17,23 @@ module nr_ldpc_sat_signed #(
 
   always_comb begin
     if (in_i < OUT_MIN_EXT) begin
-      out_o = OUT_MIN_EXT;
+      out_o = OUT_W'(OUT_MIN_EXT);
     end else if (in_i > OUT_MAX_EXT) begin
-      out_o = OUT_MAX_EXT;
+      out_o = OUT_W'(OUT_MAX_EXT);
     end else begin
-      out_o = in_i;
+      out_o = OUT_W'(in_i);
     end
   end
 endmodule
 
-module nr_ldpc_q_sub
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_q_sub (
   input  logic signed [7:0] app_i,
   input  logic signed [6:0] old_c2v_i,
   output logic signed [7:0] q_o,
   output logic signed [8:0] raw_o
 );
+  import nr_ldpc_pkg::*;
+
   arith_t app_ext;
   arith_t old_c2v_ext;
 
@@ -50,14 +50,14 @@ module nr_ldpc_q_sub
   );
 endmodule
 
-module nr_ldpc_q_magnitude
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_q_magnitude (
   input  logic signed [7:0] q_i,
   output logic              sign_o,
   output logic [8:0]        magnitude_raw_o,
   output logic [5:0]        magnitude_m6_o
 );
+  import nr_ldpc_pkg::*;
+
   arith_t q_ext;
   arith_t q_abs_signed;
 
@@ -70,26 +70,26 @@ module nr_ldpc_q_magnitude
       : magnitude_raw_o[W_M-1:0];
 endmodule
 
-module nr_ldpc_beta_sub
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_beta_sub (
   input  logic [5:0] raw_mag_i,
   output logic [5:0] offset_mag_o
 );
-  localparam mag_t BETA_MAG = BETA_INT;
+  import nr_ldpc_pkg::*;
+
+  localparam mag_t BETA_MAG = mag_t'(BETA_INT);
 
   assign offset_mag_o = (raw_mag_i > BETA_MAG)
       ? mag_t'(raw_mag_i - BETA_MAG)
       : mag_t'(6'd0);
 endmodule
 
-module nr_ldpc_c2v_reconstruct
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_c2v_reconstruct (
   input  logic [5:0]        magnitude_i,
   input  logic              negative_i,
   output logic signed [6:0] c2v_o
 );
+  import nr_ldpc_pkg::*;
+
   c2v_t positive_value;
   c2v_t negative_value;
 
@@ -107,14 +107,14 @@ module nr_ldpc_c2v_reconstruct
   end
 endmodule
 
-module nr_ldpc_app_add
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_app_add (
   input  logic signed [7:0] q_i,
   input  logic signed [6:0] new_c2v_i,
   output logic signed [7:0] app_o,
   output logic signed [8:0] raw_o
 );
+  import nr_ldpc_pkg::*;
+
   arith_t q_ext;
   arith_t new_c2v_ext;
 
@@ -131,13 +131,13 @@ module nr_ldpc_app_add
   );
 endmodule
 
-module nr_ldpc_ch_to_app_init
-  import nr_ldpc_pkg::*;
-(
+module nr_ldpc_ch_to_app_init (
   input  logic signed [5:0] ch_i,
   output logic signed [7:0] app_o,
   output logic signed [8:0] raw_o
 );
+  import nr_ldpc_pkg::*;
+
   arith_t ch_ext;
 
   assign ch_ext = {{(W_ARITH-W_CH){ch_i[W_CH-1]}}, ch_i};

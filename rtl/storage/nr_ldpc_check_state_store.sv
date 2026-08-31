@@ -131,21 +131,21 @@ module nr_ldpc_check_state_store #(
   logic old_error_q;
   logic [7:0] old_error_code_q;
 
-  function automatic int layer_index(input logic generation, input logic [5:0] layer_id);
+  function automatic logic [6:0] layer_index(input logic generation, input logic [5:0] layer_id);
     begin
-      layer_index = (generation ? MAX_LAYERS : 0) + layer_id;
+      layer_index = (generation ? 7'(MAX_LAYERS) : 7'd0) + {1'b0, layer_id};
     end
   endfunction
 
-  function automatic int qsign_index(
+  function automatic logic [11:0] qsign_index(
     input logic generation,
     input logic [5:0] layer_id,
     input logic [4:0] edge_id
   );
     begin
-      qsign_index = (generation ? (MAX_LAYERS * MAX_EDGES) : 0)
-          + (layer_id * MAX_EDGES)
-          + edge_id;
+      qsign_index = (generation ? 12'(MAX_LAYERS * MAX_EDGES) : 12'd0)
+          + ({6'd0, layer_id} * 12'(MAX_EDGES))
+          + {7'd0, edge_id};
     end
   endfunction
 

@@ -107,8 +107,8 @@ module nr_ldpc_schedule_controller #(
   localparam logic [7:0] ERR_ISSUE_NOT_READY  = 8'd7;
   localparam logic [7:0] ERR_DATAPATH         = 8'd8;
   localparam logic [7:0] ERR_UNSAFE_ADVANCE   = 8'd9;
-  localparam logic [6:0] ACTIVE_COLUMNS_W = PHASE9_ACTIVE_COLUMNS;
-  localparam logic [8:0] PROGRAM_LENGTH_W = PHASE9_PROGRAM_LENGTH;
+  localparam logic [6:0] ACTIVE_COLUMNS_W = 7'(PHASE9_ACTIVE_COLUMNS);
+  localparam logic [8:0] PROGRAM_LENGTH_W = 9'(PHASE9_PROGRAM_LENGTH);
 
   typedef enum logic [3:0] {
     ST_IDLE            = 4'd0,
@@ -486,7 +486,7 @@ module nr_ldpc_schedule_controller #(
           if (acc_issue_valid_o) begin
             acc_seen_layers_q[acc_layer_w[1:0]] <= 1'b1;
           end
-          if (pc_q == (PHASE9_PROGRAM_LENGTH - 1)) begin
+          if (pc_q == (PROGRAM_LENGTH_W - 9'd1)) begin
             state_q <= ST_WAIT_SYNDROME;
             pc_q <= 9'd0;
           end else begin

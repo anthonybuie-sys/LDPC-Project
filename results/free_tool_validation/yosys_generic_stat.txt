@@ -1,0 +1,47 @@
+7. Printing statistics.
+
+=== nr_ldpc_decoder_core ===
+
+        +----------Local Count, excluding submodules.
+        |
+   171418 wires
+  2307647 wire bits
+    53879 public wires
+   932728 public wire bits
+       95 ports
+     5842 port bits
+       38 memories
+  3023808 memory bits
+   145928 cells
+     7572   $add
+        5   $and
+       12   $bmux
+        4   $bwmux
+       18   $demux
+      130   $dffe
+     6096   $eq
+     3874   $ge
+     3855   $gt
+        8   $le
+      324   $logic_and
+     1731   $logic_not
+      155   $logic_or
+    11576   $lt
+       11   $meminit
+      122   $memrd_v2
+    13245   $memwr_v2
+    70300   $mux
+       50   $ne
+     2304   $neg
+     2318   $not
+       12   $or
+       62   $pmux
+       19   $reduce_and
+       25   $reduce_bool
+     2763   $reduce_or
+     1572   $sdff
+     3078   $sdffce
+       48   $sdffe
+     4608   $shiftx
+     6927   $sub
+     3104   $xor

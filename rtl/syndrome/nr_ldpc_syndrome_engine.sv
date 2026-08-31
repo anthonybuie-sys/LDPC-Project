@@ -41,8 +41,8 @@ module nr_ldpc_syndrome_engine #(
   localparam int SHIFT_W = $clog2(P + 1);
   localparam int PLAN_Q = Q + 2;
 
-  localparam logic [5:0] PHASE8_ACTIVE_COLUMNS_W = PHASE8_ACTIVE_COLUMNS;
-  localparam logic [6:0] PHASE8_WORK_ITEMS_W = PHASE8_WORK_ITEMS;
+  localparam logic [5:0] PHASE8_ACTIVE_COLUMNS_W = 6'(PHASE8_ACTIVE_COLUMNS);
+  localparam logic [6:0] PHASE8_WORK_ITEMS_W = 7'(PHASE8_WORK_ITEMS);
   localparam logic [PHASE8_ACTIVE_COLUMNS-1:0] ALL_COLUMNS_MASK = {PHASE8_ACTIVE_COLUMNS{1'b1}};
   localparam logic [PHASE8_WORK_ITEMS-1:0] ALL_WORK_MASK = {PHASE8_WORK_ITEMS{1'b1}};
 
@@ -140,9 +140,12 @@ module nr_ldpc_syndrome_engine #(
     end
   endgenerate
 
-  integer i;
-  integer j;
-  integer slot;
+  integer plan_i;
+  integer plan_j;
+  integer consume_slot;
+  integer delta_i;
+  integer err_i;
+  integer state_i;
   integer backlog_int;
   integer enq_count_int;
   logic [4:0] column_index_w;
@@ -151,25 +154,31 @@ module nr_ldpc_syndrome_engine #(
   logic [4:0] work_count_w;
 
   always @* begin
-    for (i = 0; i < Q; i = i + 1) begin
-      queue_column_next_w[i] = queue_column_q[i];
-      queue_hard_next_w[i] = queue_hard_q[i];
-      queue_next_work_next_w[i] = queue_next_work_q[i];
+    column_index_w = 5'd0;
+    work_id_w = 7'd0;
+    work_index_w = 5'd0;
+    work_count_w = 5'd0;
+    backlog_int = 0;
+
+    for (plan_i = 0; plan_i < Q; plan_i = plan_i + 1) begin
+      queue_column_next_w[plan_i] = queue_column_q[plan_i];
+      queue_hard_next_w[plan_i] = queue_hard_q[plan_i];
+      queue_next_work_next_w[plan_i] = queue_next_work_q[plan_i];
     end
 
-    for (i = 0; i < PLAN_Q; i = i + 1) begin
-      plan_column[i] = 7'd0;
-      plan_hard[i] = '0;
-      plan_next_work[i] = 5'd0;
+    for (plan_i = 0; plan_i < PLAN_Q; plan_i = plan_i + 1) begin
+      plan_column[plan_i] = 7'd0;
+      plan_hard[plan_i] = '0;
+      plan_next_work[plan_i] = 5'd0;
     end
 
-    for (i = 0; i < S; i = i + 1) begin
-      consume_valid_w[i] = 1'b0;
-      consume_work_id_w[i] = 7'd0;
-      consume_row_w[i] = 2'd0;
-      consume_column_w[i] = 7'd0;
-      consume_shift_w[i] = 9'd0;
-      consume_hard_w[i] = '0;
+    for (plan_i = 0; plan_i < S; plan_i = plan_i + 1) begin
+      consume_valid_w[plan_i] = 1'b0;
+      consume_work_id_w[plan_i] = 7'd0;
+      consume_row_w[plan_i] = 2'd0;
+      consume_column_w[plan_i] = 7'd0;
+      consume_shift_w[plan_i] = 9'd0;
+      consume_hard_w[plan_i] = '0;
     end
 
     plan_error_w = 1'b0;
@@ -185,11 +194,11 @@ module nr_ldpc_syndrome_engine #(
     plan_count = queue_count_q;
     enq_count_int = 0;
 
-    for (i = 0; i < Q; i = i + 1) begin
-      if (i < queue_count_q) begin
-        plan_column[i] = queue_column_q[i];
-        plan_hard[i] = queue_hard_q[i];
-        plan_next_work[i] = queue_next_work_q[i];
+    for (plan_i = 0; plan_i < Q; plan_i = plan_i + 1) begin
+      if (plan_i < queue_count_q) begin
+        plan_column[plan_i] = queue_column_q[plan_i];
+        plan_hard[plan_i] = queue_hard_q[plan_i];
+        plan_next_work[plan_i] = queue_next_work_q[plan_i];
       end
     end
 
@@ -257,7 +266,7 @@ module nr_ldpc_syndrome_engine #(
         end
       end
 
-      if ((queue_count_q + enq_count_int) > Q) begin
+      if ((int'(queue_count_q) + enq_count_int) > Q) begin
         plan_error_w = 1'b1;
         if (plan_error_code_w == 8'd0) begin
           plan_error_code_w = ERR_QUEUE_OVERFLOW;
@@ -265,24 +274,23 @@ module nr_ldpc_syndrome_engine #(
       end
 
       cycle_queue_occupancy_w = plan_count;
-      backlog_int = 0;
-      for (i = 0; i < PLAN_Q; i = i + 1) begin
-        if (i < plan_count) begin
-          work_count_w = phase8_column_work_count(plan_column[i]);
-          if (plan_next_work[i] > work_count_w) begin
+      for (plan_i = 0; plan_i < PLAN_Q; plan_i = plan_i + 1) begin
+        if (plan_i < plan_count) begin
+          work_count_w = phase8_column_work_count(plan_column[plan_i]);
+          if (plan_next_work[plan_i] > work_count_w) begin
             plan_error_w = 1'b1;
             if (plan_error_code_w == 8'd0) begin
               plan_error_code_w = ERR_IMPOSSIBLE_ITERATOR;
             end
           end else begin
-            backlog_int = backlog_int + int'(work_count_w - plan_next_work[i]);
+            backlog_int = backlog_int + (int'(work_count_w) - int'(plan_next_work[plan_i]));
           end
         end
       end
       cycle_work_backlog_w = backlog_int[6:0];
 
       if (!plan_error_w) begin
-        for (slot = 0; slot < S; slot = slot + 1) begin
+        for (consume_slot = 0; consume_slot < S; consume_slot = consume_slot + 1) begin
           if (plan_count != 4'd0) begin
             work_index_w = plan_next_work[0];
             work_count_w = phase8_column_work_count(plan_column[0]);
@@ -292,13 +300,13 @@ module nr_ldpc_syndrome_engine #(
                 plan_error_code_w = ERR_IMPOSSIBLE_ITERATOR;
               end
             end else begin
-              work_id_w = phase8_column_work_start(plan_column[0]) + work_index_w;
-              consume_valid_w[slot] = 1'b1;
-              consume_work_id_w[slot] = work_id_w;
-              consume_row_w[slot] = phase8_work_row(work_id_w);
-              consume_column_w[slot] = phase8_work_column(work_id_w);
-              consume_shift_w[slot] = phase8_work_shift(work_id_w);
-              consume_hard_w[slot] = plan_hard[0];
+              work_id_w = phase8_column_work_start(plan_column[0]) + 7'(work_index_w);
+              consume_valid_w[consume_slot] = 1'b1;
+              consume_work_id_w[consume_slot] = work_id_w;
+              consume_row_w[consume_slot] = phase8_work_row(work_id_w);
+              consume_column_w[consume_slot] = phase8_work_column(work_id_w);
+              consume_shift_w[consume_slot] = phase8_work_shift(work_id_w);
+              consume_hard_w[consume_slot] = plan_hard[0];
               consumed_this_cycle_w = consumed_this_cycle_w + 4'd1;
 
               if (!phase8_work_valid(work_id_w)
@@ -319,10 +327,10 @@ module nr_ldpc_syndrome_engine #(
 
               plan_next_work[0] = plan_next_work[0] + 5'd1;
               if (plan_next_work[0] >= work_count_w) begin
-                for (j = 0; j < PLAN_Q - 1; j = j + 1) begin
-                  plan_column[j] = plan_column[j + 1];
-                  plan_hard[j] = plan_hard[j + 1];
-                  plan_next_work[j] = plan_next_work[j + 1];
+                for (plan_j = 0; plan_j < PLAN_Q - 1; plan_j = plan_j + 1) begin
+                  plan_column[plan_j] = plan_column[plan_j + 1];
+                  plan_hard[plan_j] = plan_hard[plan_j + 1];
+                  plan_next_work[plan_j] = plan_next_work[plan_j + 1];
                 end
                 plan_column[PLAN_Q - 1] = 7'd0;
                 plan_hard[PLAN_Q - 1] = '0;
@@ -336,14 +344,15 @@ module nr_ldpc_syndrome_engine #(
     end
 
     queue_count_next_w = plan_count;
-    for (i = 0; i < Q; i = i + 1) begin
-      if (i < plan_count) begin
-        queue_column_next_w[i] = plan_column[i];
-        queue_hard_next_w[i] = plan_hard[i];
-        queue_next_work_next_w[i] = plan_next_work[i];
+    for (plan_i = 0; plan_i < Q; plan_i = plan_i + 1) begin
+      if (plan_i < plan_count) begin
+        queue_column_next_w[plan_i] = plan_column[plan_i];
+        queue_hard_next_w[plan_i] = plan_hard[plan_i];
+        queue_next_work_next_w[plan_i] = plan_next_work[plan_i];
       end else begin
-        queue_column_next_w[i] = 7'd0;
-        queue_next_work_next_w[i] = 5'd0;
+        queue_column_next_w[plan_i] = 7'd0;
+        queue_hard_next_w[plan_i] = '0;
+        queue_next_work_next_w[plan_i] = 5'd0;
       end
     end
   end
@@ -353,13 +362,13 @@ module nr_ldpc_syndrome_engine #(
     row_delta1_w = '0;
     row_delta2_w = '0;
     row_delta3_w = '0;
-    for (i = 0; i < S; i = i + 1) begin
-      if (consume_valid_w[i]) begin
-        case (consume_row_w[i])
-          2'd0: row_delta0_w = row_delta0_w ^ consume_check_w[i];
-          2'd1: row_delta1_w = row_delta1_w ^ consume_check_w[i];
-          2'd2: row_delta2_w = row_delta2_w ^ consume_check_w[i];
-          2'd3: row_delta3_w = row_delta3_w ^ consume_check_w[i];
+    for (delta_i = 0; delta_i < S; delta_i = delta_i + 1) begin
+      if (consume_valid_w[delta_i]) begin
+        case (consume_row_w[delta_i])
+          2'd0: row_delta0_w = row_delta0_w ^ consume_check_w[delta_i];
+          2'd1: row_delta1_w = row_delta1_w ^ consume_check_w[delta_i];
+          2'd2: row_delta2_w = row_delta2_w ^ consume_check_w[delta_i];
+          2'd3: row_delta3_w = row_delta3_w ^ consume_check_w[delta_i];
           default: begin end
         endcase
       end
@@ -373,8 +382,8 @@ module nr_ldpc_syndrome_engine #(
 
   always @* begin
     shift_error_w = 1'b0;
-    for (i = 0; i < S; i = i + 1) begin
-      shift_error_w = shift_error_w || (consume_valid_w[i] && consume_shift_error_w[i]);
+    for (err_i = 0; err_i < S; err_i = err_i + 1) begin
+      shift_error_w = shift_error_w || (consume_valid_w[err_i] && consume_shift_error_w[err_i]);
     end
 
     completion_candidate_w = !done_q
@@ -417,9 +426,10 @@ module nr_ldpc_syndrome_engine #(
       zero_q <= 1'b0;
       error_q <= 1'b0;
       error_code_q <= 8'd0;
-      for (i = 0; i < Q; i = i + 1) begin
-        queue_column_q[i] <= 7'd0;
-        queue_next_work_q[i] <= 5'd0;
+      for (state_i = 0; state_i < Q; state_i = state_i + 1) begin
+        queue_column_q[state_i] <= 7'd0;
+        queue_hard_q[state_i] <= '0;
+        queue_next_work_q[state_i] <= 5'd0;
       end
     end else if (start_iteration_i) begin
       queue_count_q <= 4'd0;
@@ -438,9 +448,10 @@ module nr_ldpc_syndrome_engine #(
       zero_q <= 1'b0;
       error_q <= 1'b0;
       error_code_q <= 8'd0;
-      for (i = 0; i < Q; i = i + 1) begin
-        queue_column_q[i] <= 7'd0;
-        queue_next_work_q[i] <= 5'd0;
+      for (state_i = 0; state_i < Q; state_i = state_i + 1) begin
+        queue_column_q[state_i] <= 7'd0;
+        queue_hard_q[state_i] <= '0;
+        queue_next_work_q[state_i] <= 5'd0;
       end
     end else if (error_q || done_q) begin
       consumed_this_cycle_q <= 4'd0;
@@ -469,10 +480,10 @@ module nr_ldpc_syndrome_engine #(
         done_q <= 1'b1;
         zero_q <= zero_next_w;
       end
-      for (i = 0; i < Q; i = i + 1) begin
-        queue_column_q[i] <= queue_column_next_w[i];
-        queue_hard_q[i] <= queue_hard_next_w[i];
-        queue_next_work_q[i] <= queue_next_work_next_w[i];
+      for (state_i = 0; state_i < Q; state_i = state_i + 1) begin
+        queue_column_q[state_i] <= queue_column_next_w[state_i];
+        queue_hard_q[state_i] <= queue_hard_next_w[state_i];
+        queue_next_work_q[state_i] <= queue_next_work_next_w[state_i];
       end
     end
   end
