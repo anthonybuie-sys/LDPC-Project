@@ -9,7 +9,7 @@
 ## Tool
 
 - Source: OSS CAD Suite `20260830`
-- Path: `C:\Users\18324\.cache\oss-cad-suite-20260830\bin\verilator_bin.exe`
+- Path policy: resolved from `$env:VERILATOR`, `$env:OSS_CAD_SUITE`, or `PATH`
 - Version: `Verilator 5.051 devel rev v5.050-294-gc81be029a (mod)`
 - Log: `results/free_tool_validation/verilator_lint.log`
 

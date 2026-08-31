@@ -1,10 +1,21 @@
 # 5G NR QC-LDPC Decoder Core
 
-This repository contains a production-oriented SystemVerilog implementation and
-Python architecture/numerical model for a frozen 5G NR QC-LDPC layered
-Offset-Min-Sum decoder core.
+Production-oriented SystemVerilog RTL and Python reference models for a frozen
+5G NR QC-LDPC layered Offset-Min-Sum decoder core.
 
-The production RTL target is intentionally narrow and fully specified:
+| Item | Status |
+| --- | --- |
+| Production core | Functionally complete for the frozen BG1 Z=384 reference profile |
+| Top module | `rtl/core/nr_ldpc_decoder_core.sv` |
+| Algorithm | Layered Offset-Min-Sum with final-touch streaming syndrome checking |
+| Fixed-point profile | CH6 / APP8 / q8 / M6, gain 1.32, channel-to-APP shift 1, beta_int 1 |
+| RTL verification | Phase 1 through Phase 9 pass, including three-iteration retry ping-pong |
+| Python regression | 76 tests pass |
+| Open-source synthesis | Verilator lint/elaboration and Yosys generic synthesis pass |
+| UltraScale+ analysis | Yosys `synth_xilinx -family xcup` bounded checkpoint passes |
+| FPGA Fmax | XCZU67DR post-route Fmax is NOT MEASURED |
+
+## Frozen Reference Configuration
 
 ```text
 Base graph: BG1
@@ -21,60 +32,57 @@ Forward cache depth: 8
 Syndrome engine: S=8, Q=8
 ```
 
-The core top is:
+The checked-in graph tables are under `data/NR-LDPC-BG`. They are sourced from
+`https://github.com/manuts/NR-LDPC-BG` at commit
+`910ecbc9e81d43e318079aec535dc9a166a76b2a`.
 
-```text
-rtl/core/nr_ldpc_decoder_core.sv
-```
-
-## What Is Implemented
-
-The RTL implements the frozen high-rate decoder-core datapath and controller:
-
-- signed fixed-point Layered OMS arithmetic
-- QC forward/inverse permutation for P=Z=384
-- compressed C2V reconstruction
-- ACC min-update pipeline
-- REC APP-update pipeline
-- q scratch storage
-- compressed check-state storage
-- canonical APP memory
-- just-in-time dependency forwarding
-- final-touch streaming syndrome engine
-- generated 71-cycle schedule controller
-- full decoder-core top-level control, retry, done, abort, and error handling
-
-The Python model and scripts under `ldpc_sim/`, `scripts/`, and `tests/` remain
-the architecture, scheduling, numerical, and regression reference.
-
-## Graph Data
-
-The real BG1/BG2 graph tables are loaded from:
-
-```text
-data/NR-LDPC-BG
-```
-
-The checked-in graph source was cloned from:
-
-```text
-https://github.com/manuts/NR-LDPC-BG
-```
-
-at commit:
-
-```text
-910ecbc9e81d43e318079aec535dc9a166a76b2a
-```
-
-The production RTL reference uses `NR_1_1_384.txt`, active layers 0..3.
-
-Synthetic scheduler fixtures remain for regression tests only and must not be
+Synthetic graph fixtures are retained only for regression tests and are not
 reported as 3GPP base-graph results.
 
-## Fixed-Point Profile
+## Architecture
 
-The frozen numerical profile is width family F:
+```mermaid
+flowchart LR
+    input[Channel LLR load] --> app[Canonical APP memory]
+    app --> fwd[JIT forward selection]
+    fwd --> qc1[QC rotate to check domain]
+    qc1 --> acc[ACC min-update pipeline]
+    acc --> qbuf[q scratch]
+    acc --> cstate[Compressed check-state store]
+    cstate --> rec[REC reconstruction pipeline]
+    qbuf --> rec
+    rec --> qc2[QC inverse rotate to canonical]
+    qc2 --> app
+    rec --> fcache[Forward cache]
+    fcache --> fwd
+    rec --> synd[Final-touch syndrome engine]
+    synd --> decide[Iteration decision]
+    ctrl[Generated schedule controller] --> acc
+    ctrl --> rec
+    decide --> ctrl
+```
+
+Major RTL blocks:
+
+| Area | Files |
+| --- | --- |
+| Common package/arithmetic | `rtl/common/` |
+| QC permutation | `rtl/qc/` |
+| Compressed C2V reconstruction | `rtl/check_state/` |
+| ACC datapath | `rtl/acc/` |
+| REC datapath | `rtl/rec/` |
+| Storage and forwarding | `rtl/storage/` |
+| Syndrome engine/profile | `rtl/syndrome/` |
+| Controller/profile | `rtl/control/` |
+| Integrated datapaths and top | `rtl/core/` |
+| Testbenches | `rtl/tb/` |
+
+`rtl_prototypes/` contains older isolated physical-experiment kernels. Those
+files are not the production decoder RTL.
+
+## Fixed-Point Semantics
+
+Frozen width family F:
 
 ```text
 CH = 6
@@ -87,7 +95,7 @@ beta_int = 1
 saturation = asymmetric two's-complement
 ```
 
-Important arithmetic semantics:
+Preserved arithmetic behavior:
 
 - `APP_initial = sat8(CH6 << 1)`
 - `q = sat8(APP - oldC2V)`
@@ -96,25 +104,7 @@ Important arithmetic semantics:
 - C2V negative zero is suppressed
 - `APP = sat8(q + C2V)`
 
-## RTL Layout
-
-```text
-rtl/common/       package and arithmetic primitives
-rtl/qc/           QC permutation network
-rtl/check_state/  compressed C2V reconstruction
-rtl/acc/          ACC min-update/context/pipeline
-rtl/rec/          REC pipeline
-rtl/storage/      q scratch, check-state store, APP memory, forward cache
-rtl/syndrome/     streaming syndrome engine and generated BG1 profile
-rtl/control/      iteration decision and generated schedule controller profile
-rtl/core/         integrated datapaths and decoder-core top level
-rtl/tb/           phase testbenches
-```
-
-`rtl_prototypes/` contains older isolated physical-experiment kernels. Those
-files are not the production decoder RTL.
-
-## Latency
+## Measured Cycle Latency
 
 Functional RTL simulation measures:
 
@@ -125,8 +115,7 @@ one-iteration controller done = 73 cycles
 retry PC0-to-PC0 spacing = 74 cycles
 ```
 
-The accepted retry interval for this functional freeze is 74 cycles. Physical
-latency is therefore:
+Physical latency is therefore:
 
 ```text
 71 / Fclock
@@ -135,13 +124,13 @@ latency is therefore:
 74 / Fclock
 ```
 
-with `Fclock` awaiting a supported target FPGA implementation flow.
+`Fclock` awaits a supported target FPGA implementation flow.
 
 XCZU67DR post-route Fmax = NOT MEASURED.
 
 ## Verification Status
 
-Current accepted regression evidence:
+Accepted regression evidence:
 
 ```text
 Phase 1: PASS phase1 arithmetic primitives
@@ -161,7 +150,7 @@ Phase 9: PASS selected-case decoder-core sweep including three-iteration retry
 Full Python: 76 passed
 ```
 
-Phase 9 verifies:
+Phase 9 selected-case coverage verifies:
 
 ```text
 one-iteration terminal done = 73
@@ -175,86 +164,94 @@ ACC = 120 issues / 228 active edges
 REC = 120 issues / 228 active edges
 ```
 
-## Reproducing Python Tests
+## Reproducing The Release Checks
 
-Use the bundled Python runtime if available:
-
-```powershell
-C:\Users\18324\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe tests\run_tests.py
-```
-
-Expected:
-
-```text
-76 passed
-```
-
-## Reproducing RTL Simulation
-
-The production RTL phase tests use Icarus Verilog 12 with explicit
-package-first compile order. Example Phase 1:
+From the repository root, use tools from `PATH` or set these optional
+environment variables:
 
 ```powershell
-iverilog -g2012 -I rtl\common `
-  -o results\rtl_phase1\tb_phase1_arith.vvp `
-  rtl\common\nr_ldpc_pkg.sv `
-  rtl\common\nr_ldpc_arith.sv `
-  rtl\tb\tb_phase1_arith.sv
-
-vvp results\rtl_phase1\tb_phase1_arith.vvp
+$env:PYTHON = "python"
+$env:IVERILOG = "iverilog"
+$env:VVP = "vvp"
+$env:OSS_CAD_SUITE = "<path-to-oss-cad-suite>"
+$env:YOSYS = "yosys"
+$env:VERILATOR = "verilator_bin.exe"
 ```
 
-The P=384 integrated Phase 9 cases are intentionally run as selected cases:
+If using OSS CAD Suite on Windows, initialize it before Yosys or Verilator:
 
 ```powershell
-vvp results\rtl_phase9\tb_phase9_decoder_core.vvp +phase9_case=1
-...
-vvp results\rtl_phase9\tb_phase9_decoder_core.vvp +phase9_case=14
+. "$env:OSS_CAD_SUITE\environment.ps1"
 ```
 
-The monolithic all-case P=384 run repeats the same full-core reset/integration
-work and is much slower under Icarus.
+Run the Python regression:
+
+```powershell
+.\scripts\run_python_regression.ps1
+```
+
+Run the selected Phase 9 decoder-core sweep:
+
+```powershell
+.\scripts\run_phase9_regression.ps1
+```
+
+Run Phase 1 through Phase 9 RTL regression:
+
+```powershell
+.\scripts\run_full_rtl_regression.ps1
+```
+
+Run both Python and RTL regressions:
+
+```powershell
+.\scripts\run_full_regression.ps1
+```
+
+Run Verilator lint/elaboration:
+
+```powershell
+.\scripts\run_verilator.ps1
+```
+
+Run Yosys generic synthesis:
+
+```powershell
+.\scripts\run_yosys_generic.ps1
+```
+
+Run the bounded UltraScale+ checkpoint:
+
+```powershell
+.\scripts\run_yosys_xcup_checkpoint.ps1
+```
+
+Generated simulator binaries and local logs are intentionally ignored by git.
 
 ## Free/Open-Source Tool Validation
 
-No Vivado result is claimed in this repository state.
-
-The free/open-source validation used OSS CAD Suite:
-
-```text
-C:\Users\18324\.cache\oss-cad-suite-20260830
-```
-
-Recorded tools:
+The release was validated with free/open-source tools:
 
 ```text
 Python 3.12.13
 Icarus Verilog 12.0 devel
 Verilator 5.051 devel
-Yosys 0.68+136
+Yosys 0.68+136 with read_slang
+OSS CAD Suite 20260830
 ```
 
-See:
+Reports:
 
 ```text
 results/free_tool_validation/toolchain_versions.md
 results/free_tool_validation/verilator_report.md
 results/free_tool_validation/yosys_generic_report.md
 results/free_tool_validation/yosys_xcup_report.md
+results/final/final_decoder_report.md
+RELEASE_STATUS.md
 ```
 
-## Reproducing Yosys Generic Synthesis
-
-In PowerShell:
-
-```powershell
-. C:\Users\18324\.cache\oss-cad-suite-20260830\environment.ps1
-$env:VERILATOR_ROOT='C:\Users\18324\.cache\oss-cad-suite-20260830\share\verilator'
-
-yosys -l results\free_tool_validation\yosys_generic.log -p "read_slang --std latest --unroll-limit 20000 --top nr_ldpc_decoder_core rtl/common/nr_ldpc_pkg.sv rtl/syndrome/nr_ldpc_syndrome_profile_bg1_first4.sv rtl/control/nr_ldpc_controller_profile_bg1_first4.sv rtl/common/nr_ldpc_arith.sv rtl/check_state/nr_ldpc_c2v_reconstruct.sv rtl/acc/nr_ldpc_acc_min_update.sv rtl/acc/nr_ldpc_acc_context.sv rtl/acc/nr_ldpc_acc_pipeline.sv rtl/rec/nr_ldpc_rec_pipeline.sv rtl/qc/nr_ldpc_qc_permute.sv rtl/storage/nr_ldpc_q_scratch.sv rtl/storage/nr_ldpc_check_state_store.sv rtl/storage/nr_ldpc_app_memory.sv rtl/storage/nr_ldpc_forward_cache.sv rtl/control/nr_ldpc_iteration_decide.sv rtl/control/nr_ldpc_schedule_controller.sv rtl/syndrome/nr_ldpc_syndrome_engine.sv rtl/core/nr_ldpc_acc_rec_datapath.sv rtl/core/nr_ldpc_app_forward_datapath.sv rtl/core/nr_ldpc_syndrome_datapath.sv rtl/core/nr_ldpc_decoder_core.sv; hierarchy -top nr_ldpc_decoder_core; proc; opt; check; stat; tee -o results/free_tool_validation/yosys_generic_stat.txt stat"
-```
-
-Observed generic result:
+Yosys generic synthesis result:
 
 ```text
 Build succeeded: 0 errors, 0 warnings
@@ -264,37 +261,16 @@ memory bits = 3023808
 cells = 145928
 ```
 
-## Reproducing Yosys xcup Analysis
-
-Bounded UltraScale+ mapping checkpoint:
-
-```powershell
-. C:\Users\18324\.cache\oss-cad-suite-20260830\environment.ps1
-$env:VERILATOR_ROOT='C:\Users\18324\.cache\oss-cad-suite-20260830\share\verilator'
-
-yosys -l results\free_tool_validation\yosys_xcup_prememory.log -p "read_slang --std latest --unroll-limit 20000 --top nr_ldpc_decoder_core rtl/common/nr_ldpc_pkg.sv rtl/syndrome/nr_ldpc_syndrome_profile_bg1_first4.sv rtl/control/nr_ldpc_controller_profile_bg1_first4.sv rtl/common/nr_ldpc_arith.sv rtl/check_state/nr_ldpc_c2v_reconstruct.sv rtl/acc/nr_ldpc_acc_min_update.sv rtl/acc/nr_ldpc_acc_context.sv rtl/acc/nr_ldpc_acc_pipeline.sv rtl/rec/nr_ldpc_rec_pipeline.sv rtl/qc/nr_ldpc_qc_permute.sv rtl/storage/nr_ldpc_q_scratch.sv rtl/storage/nr_ldpc_check_state_store.sv rtl/storage/nr_ldpc_app_memory.sv rtl/storage/nr_ldpc_forward_cache.sv rtl/control/nr_ldpc_iteration_decide.sv rtl/control/nr_ldpc_schedule_controller.sv rtl/syndrome/nr_ldpc_syndrome_engine.sv rtl/core/nr_ldpc_acc_rec_datapath.sv rtl/core/nr_ldpc_app_forward_datapath.sv rtl/core/nr_ldpc_syndrome_datapath.sv rtl/core/nr_ldpc_decoder_core.sv; synth_xilinx -family xcup -top nr_ldpc_decoder_core -noiopad -noclkbuf -run begin:map_dsp; check; stat -tech xilinx; tee -o results/free_tool_validation/yosys_xcup_prememory_stat.txt stat -tech xilinx"
-```
-
-Observed bounded result:
-
-```text
-Build succeeded: 0 errors, 0 warnings
-Found and reported 0 problems
-memories = 38
-memory bits = 3023808
-```
-
-Full final primitive mapping did not complete on this host/toolchain. One run
-stalled in memory mapping; another no-implicit-memory run terminated with
-`std::bad_alloc`. The project therefore does not claim complete YOSYS
-TECHNOLOGY-MAPPED ESTIMATE numbers for LUT, FF, carry, LUTRAM, BRAM, DSP48E2,
-SRL, or mux resources for the full core.
+The bounded xcup checkpoint also elaborates cleanly and preserves the inferred
+memory fabric. Full final primitive mapping for the 384-lane core did not
+complete on the recorded host/toolchain, so complete LUT/FF/BRAM/DSP/SRL
+resource numbers are not claimed.
 
 ## FPGA Physical Implementation Status
 
 The decoder RTL core is functionally complete and verified.
 
-Free/open-source synthesis and UltraScale+ technology mapping analysis have
+Free/open-source synthesis and UltraScale+ technology-mapping analysis have
 been performed.
 
 XCZU67DR-specific placement/routing, timing closure, post-route Fmax, vendor
@@ -315,4 +291,4 @@ L_IPCTEK = 78 + 133N cycles
 
 For `N=6`, this is 876 cycles. The production reference core's accepted retry
 spacing is 74 cycles/iteration, so iteration-dependent latency is measured in
-the RTL, but physical clock frequency is not yet measured.
+RTL, while physical clock frequency remains unmeasured.

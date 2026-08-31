@@ -11,7 +11,7 @@
 ## Tool
 
 - Source: OSS CAD Suite `20260830`
-- Path: `C:\Users\18324\.cache\oss-cad-suite-20260830\bin\yosys.exe`
+- Path policy: resolved from `$env:YOSYS`, `$env:OSS_CAD_SUITE`, or `PATH`
 - Version: `Yosys 0.68+136 (git sha1 c30457480-dirty, Release, GNU /usr/bin/x86_64-w64-mingw32-g++ 15.2.1)`
 
 Installed Yosys help confirms the requested family option exists:
