@@ -81,7 +81,8 @@ module nr_ldpc_syndrome_datapath #(
   output logic [1:0]                   debug_forward_alloc_valid_o,
   output logic [1:0]                   debug_forward_alloc_accept_o,
   output logic [5:0]                   debug_forward_live_count_o,
-  output logic                         debug_app_same_bank_collision_o
+  output logic                         debug_app_same_bank_collision_o,
+  output logic                         debug_advance_accept_o
 );
   import nr_ldpc_pkg::*;
 
@@ -174,7 +175,6 @@ module nr_ldpc_syndrome_datapath #(
   logic [P*5-1:0] debug_layer_close_imin_o;
   logic [P-1:0] debug_layer_close_aggregate_sign_o;
   logic debug_q_write_accept_o;
-  logic debug_advance_accept_o;
   logic debug_acc_old_resp_valid_o;
   logic debug_acc_old_generation_valid_o;
   logic debug_rec_new_resp_valid_o;

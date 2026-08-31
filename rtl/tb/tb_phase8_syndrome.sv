@@ -119,6 +119,7 @@ module tb_phase8_syndrome;
   logic [1:0] debug_forward_alloc_accept_o;
   logic [5:0] debug_forward_live_count_o;
   logic debug_app_same_bank_collision_o;
+  logic debug_advance_accept_o;
 
   int errors;
   int syndrome_directed_cases;

@@ -233,6 +233,7 @@ module nr_ldpc_acc_rec_datapath #(
   logic old_req_pending_q;
   logic [5:0] old_req_layer_q;
   logic [3:0] old_req_epoch_q;
+  logic [3:0] old_state_lookup_epoch;
   logic old_alignment_error_w;
   logic [5:0] q_live_count;
   logic [2:0] acc_inflight_q;
@@ -256,6 +257,9 @@ module nr_ldpc_acc_rec_datapath #(
   assign advance_accept_w = advance_iteration_i && !unsafe_advance_w;
   assign accepted_qsign_write_valid = qsign_write_valid & {2{q_write_accept}};
   assign accepted_layer_close_valid = layer_close_valid && q_write_accept;
+  assign old_state_lookup_epoch = (old_state_req_iteration_epoch == 4'd0)
+      ? 4'd0
+      : (old_state_req_iteration_epoch - 4'd1);
 
   nr_ldpc_acc_pipeline #(
     .P(P)
@@ -371,7 +375,7 @@ module nr_ldpc_acc_rec_datapath #(
     .acc_old_req_layer_id_i(old_state_req_layer_id),
     .acc_old_req_edge0_id_i(old_state_req_edge0_id),
     .acc_old_req_edge1_id_i(old_state_req_edge1_id),
-    .acc_old_req_iteration_epoch_i(old_state_req_iteration_epoch),
+    .acc_old_req_iteration_epoch_i(old_state_lookup_epoch),
     .acc_old_resp_valid_o(old_state_resp_valid),
     .acc_old_generation_valid_o(old_generation_valid),
     .acc_old_m1_o(old_m1),
@@ -536,7 +540,7 @@ module nr_ldpc_acc_rec_datapath #(
 
       old_req_pending_q <= old_state_req_valid;
       old_req_layer_q <= old_state_req_layer_id;
-      old_req_epoch_q <= old_state_req_iteration_epoch;
+      old_req_epoch_q <= old_state_lookup_epoch;
       old_state_alignment_error_o <= old_alignment_error_w;
     end
   end
